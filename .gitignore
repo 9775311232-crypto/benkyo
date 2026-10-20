@@ -1,0 +1,4 @@
+# index.html 以外は公開しない（授業資料・メモなど）
+/*
+!/index.html
+!/.gitignore

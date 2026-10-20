@@ -1,0 +1,1575 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>分析化学I 特訓</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=IBM+Plex+Mono:wght@500&family=Zen+Kaku+Gothic+New:wght@400;700&display=swap">
+<style>
+/* Layout: one-thumb study app. Lecture row on top, two tabs (read first / drill), content card in the middle, big action bar pinned to the bottom. Chapter colors follow Tswett's pigment bands. */
+:root{
+  --bg:#EDF1EB; --surface:#F9FBF7; --fg:#15201A; --muted:#58665D; --line:#C9D3CA;
+  --accent:#1E7550; --accent-fg:#F4FBF6; --accent-soft:#D6EADD;
+  --ok:#1F8048; --ok-bg:#DDF0E2; --bad:#B83A26; --bad-bg:#F7DFD9;
+  --t-base:#6E7A45; --t-gc:#16806E; --t-det:#4A8F2A; --t-lc:#A87C00; --t-ion:#C25A14; --t-calc:#4F5F9E; --t-graph:#2F6F9E; --t-tlc:#8A5BA8;
+  --f-display:"Dela Gothic One","Hiragino Sans","Noto Sans JP",sans-serif;
+  --f-body:"Zen Kaku Gothic New","Hiragino Sans","Noto Sans JP",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0F1512; --surface:#18201B; --fg:#E6EEE8; --muted:#97A59C; --line:#2E3A33;
+  --accent:#4FC28C; --accent-fg:#06140D; --accent-soft:#1B3528;
+  --ok:#5BCB85; --ok-bg:#163223; --bad:#F08A73; --bad-bg:#3A1D17;
+  --t-base:#AEBB7E; --t-gc:#4CC7B0; --t-det:#8CCB62; --t-lc:#E2B93A; --t-ion:#F0955A; --t-calc:#93A3E6; --t-graph:#7DB6E3; --t-tlc:#C39BE0;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0F1512; --surface:#18201B; --fg:#E6EEE8; --muted:#97A59C; --line:#2E3A33;
+  --accent:#4FC28C; --accent-fg:#06140D; --accent-soft:#1B3528;
+  --ok:#5BCB85; --ok-bg:#163223; --bad:#F08A73; --bad-bg:#3A1D17;
+  --t-base:#AEBB7E; --t-gc:#4CC7B0; --t-det:#8CCB62; --t-lc:#E2B93A; --t-ion:#F0955A; --t-calc:#93A3E6; --t-graph:#7DB6E3; --t-tlc:#C39BE0;
+  color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:16px;line-height:1.7;margin:0;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:14px calc(96px + env(safe-area-inset-bottom,0px))}
+.wrap{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+header{display:flex;justify-content:space-between;align-items:flex-end;gap:12px}
+h1{font-family:var(--f-display);font-weight:400;font-size:1.6rem;line-height:1.1;margin:0;letter-spacing:.02em}
+.sub{font-size:.78rem;color:var(--muted);margin-top:4px}
+.sub b{font-family:var(--f-mono);font-weight:500;color:var(--fg);font-size:.95rem}
+.score{font-family:var(--f-mono);font-variant-numeric:tabular-nums;text-align:right;font-size:.82rem;color:var(--muted);white-space:nowrap;line-height:1.5}
+.score b{font-size:1.25rem;color:var(--fg);font-weight:500}
+.tabs{display:grid;grid-template-columns:1fr 1fr;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:4px;gap:4px}
+.tabs button{font:inherit;font-weight:700;border:0;border-radius:7px;min-height:42px;background:transparent;color:var(--muted);cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--fg);color:var(--bg)}
+.strip{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:6px 8px 2px}
+.strip svg{display:block;width:100%;height:46px}
+.strip .axis{display:flex;justify-content:space-between;font-family:var(--f-mono);font-size:.62rem;color:var(--muted);letter-spacing:.04em}
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;font:inherit;font-size:.82rem;font-weight:700;border:1.5px solid var(--line);background:transparent;color:var(--fg);
+  border-radius:999px;padding:6px 13px;display:flex;align-items:center;gap:6px;cursor:pointer;min-height:36px;line-height:1.3}
+.chip i{width:9px;height:9px;border-radius:50%;background:var(--c,var(--muted))}
+.chip .n{font-family:var(--f-mono);font-weight:500;color:var(--muted)}
+.chip[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.chip[aria-pressed="true"] .n{color:var(--bg)}
+.chip.weak[aria-pressed="true"]{background:var(--bad);border-color:var(--bad);color:var(--surface)}
+.chip.weak[aria-pressed="true"] .n{color:var(--surface)}
+.lecs .chip{border-radius:8px;flex-direction:column;align-items:flex-start;gap:0;padding:6px 12px;min-height:48px}
+.lecs .chip .d{font-family:var(--f-mono);font-weight:500;font-size:.72rem;color:var(--muted)}
+.lecs .chip[aria-pressed="true"] .d{color:var(--bg)}
+.lecs .chip .bar2{display:block;width:100%;height:3px;border-radius:2px;background:var(--line);margin-top:4px;overflow:hidden}
+.lecs .chip .bar2 span{display:block;height:100%;background:var(--ok)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px 16px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.meta{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:.74rem;letter-spacing:.06em;color:var(--muted);margin:0}
+.tag{display:inline-flex;align-items:center;gap:6px;font-weight:700;color:var(--c)}
+.tag::before{content:"";flex:none;width:22px;height:6px;border-radius:3px;background:var(--c)}
+.count{font-family:var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.q{font-size:1.08rem;font-weight:700;line-height:1.6;margin:0;text-wrap:pretty;white-space:pre-line}
+.opts{display:flex;flex-direction:column;gap:9px}
+.opt{font:inherit;text-align:left;background:var(--bg);color:var(--fg);border:1.5px solid var(--line);border-radius:8px;
+  padding:12px 14px;min-height:52px;cursor:pointer;line-height:1.5;display:flex;gap:10px;align-items:flex-start}
+.opt .k{font-family:var(--f-mono);color:var(--muted);flex:none;width:1.1em}
+.opt:disabled{cursor:default}
+.opt.right{border-color:var(--ok);background:var(--ok-bg)}
+.opt.right .k{color:var(--ok)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-bg)}
+.opt.wrong .k{color:var(--bad)}
+.opt.dim{opacity:.55}
+.reveal{font:inherit;font-weight:700;border:1.5px dashed var(--line);background:transparent;color:var(--fg);border-radius:8px;min-height:64px;cursor:pointer}
+.ans{border-left:4px solid var(--accent);padding:2px 0 2px 12px;font-weight:700;white-space:pre-line}
+.exp{font-size:.9rem;color:var(--muted);white-space:pre-line;border-top:1px solid var(--line);padding-top:12px}
+.self{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.self button{font:inherit;font-weight:700;border-radius:8px;min-height:52px;cursor:pointer;border:1.5px solid}
+.self .y{background:var(--ok-bg);border-color:var(--ok);color:var(--ok)}
+.self .n{background:var(--bad-bg);border-color:var(--bad);color:var(--bad)}
+.bar{position:fixed;left:0;right:0;bottom:0;z-index:5;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px);
+  border-top:1px solid var(--line);padding-top:10px;padding-bottom:calc(10px + env(safe-area-inset-bottom,0px));
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.bar .in{max-width:560px;margin:0 auto;display:flex;gap:10px}
+.next{flex:1;font:inherit;font-weight:700;font-size:1.05rem;min-height:56px;border:0;border-radius:10px;background:var(--accent);color:var(--accent-fg);cursor:pointer}
+.next.skip{background:transparent;color:var(--muted);border:1.5px solid var(--line)}
+.ghost{font:inherit;font-size:.85rem;font-weight:700;min-height:56px;padding:0 16px;border-radius:10px;border:1.5px solid var(--line);background:transparent;color:var(--fg);cursor:pointer}
+.sum h2{font-family:var(--f-display);font-weight:400;font-size:2.4rem;margin:0;font-variant-numeric:tabular-nums}
+.sum p{margin:0;color:var(--muted)}
+.rows{display:flex;flex-direction:column;gap:6px;font-size:.88rem}
+.rows div{display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid var(--line);padding-bottom:6px}
+.rows span:last-child{font-family:var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+
+/* lesson */
+.lesson{gap:16px}
+.lesson h2{font-family:var(--f-display);font-weight:400;font-size:1.45rem;line-height:1.3;margin:0;text-wrap:balance}
+.lesson h3{font-size:1rem;margin:6px 0 0;display:flex;align-items:center;gap:8px}
+.lesson h3::before{content:"";flex:none;width:4px;height:1.05em;border-radius:2px;background:var(--c,var(--accent))}
+.lesson p{margin:0}
+.lesson b{background:linear-gradient(transparent 60%,var(--accent-soft) 60%);font-weight:700}
+.lesson ul,.lesson ol{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
+.lead{font-size:1.02rem}
+.slide{font-size:.76rem;color:var(--muted);letter-spacing:.03em;border:1px dashed var(--line);border-radius:6px;padding:6px 10px}
+.fig{margin:0;background:var(--bg);border-radius:8px;padding:10px 8px 8px;display:flex;flex-direction:column;gap:6px}
+.fig svg{display:block;width:100%;height:auto}
+.fig figcaption{font-size:.8rem;color:var(--muted);padding:0 4px}
+.flow{display:flex;flex-direction:column;gap:0}
+.flow div{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 12px;font-size:.9rem}
+.flow div b{background:none}
+.flow div+div{margin-top:18px;position:relative}
+.flow div+div::before{content:"↓";position:absolute;top:-19px;left:18px;color:var(--muted);font-size:.85rem}
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.duo>div{background:var(--bg);border-radius:8px;padding:10px 12px;font-size:.86rem;line-height:1.6;min-width:0;display:flex;flex-direction:column;gap:4px}
+.duo>div strong{font-size:.95rem}
+.defs{display:flex;flex-direction:column;gap:10px}
+.defs>div{display:grid;grid-template-columns:4.6em 1fr;gap:10px;align-items:baseline;border-bottom:1px solid var(--line);padding-bottom:9px;font-size:.92rem}
+.defs>div:last-child{border-bottom:0;padding-bottom:0}
+.defs dt,.defs .k{font-family:var(--f-mono);font-weight:500;color:var(--c,var(--accent));font-size:.88rem}
+.formula{font-family:var(--f-mono);font-size:.92rem;background:var(--bg);border-radius:8px;padding:10px 12px;overflow-x:auto;white-space:nowrap}
+.formula small{display:block;font-family:var(--f-body);color:var(--muted);font-size:.78rem;white-space:normal;margin-top:4px}
+.tbl{width:100%;border-collapse:collapse;font-size:.84rem;font-variant-numeric:tabular-nums}
+.tbl th,.tbl td{border-bottom:1px solid var(--line);padding:5px 6px;text-align:left;vertical-align:top}
+.tbl th{color:var(--muted);font-weight:700;font-size:.78rem}
+.tblwrap{overflow-x:auto}
+.note{font-size:.88rem;background:var(--accent-soft);border-radius:8px;padding:10px 12px}
+.go{font:inherit;font-weight:700;min-height:52px;border-radius:10px;border:1.5px solid var(--c,var(--accent));background:transparent;color:var(--c,var(--accent));cursor:pointer}
+.dunno{font:inherit;font-weight:700;font-size:.92rem;min-height:48px;border-radius:8px;border:1.5px dashed var(--muted);background:transparent;color:var(--muted);cursor:pointer}
+.revrow{display:grid;grid-template-columns:1fr 1.6fr;gap:9px}
+.revrow .reveal{min-height:48px}
+.help{display:flex;flex-direction:column;gap:10px;background:var(--accent-soft);border-radius:8px;padding:12px}
+.help .row{display:flex;gap:8px;flex-wrap:wrap}
+.help .row button,.help .ask{font:inherit;font-weight:700;font-size:.88rem;min-height:46px;padding:0 14px;border-radius:8px;border:1.5px solid var(--accent);background:var(--surface);color:var(--accent);cursor:pointer;flex:1 1 auto}
+.help .ask{background:var(--accent);color:var(--accent-fg)}
+.help button:disabled{opacity:.6;cursor:default}
+.help label{font-size:.85rem;font-weight:700}
+.help textarea{font:inherit;font-size:.95rem;width:100%;min-height:72px;border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:var(--surface);color:var(--fg);resize:vertical}
+.ai{white-space:pre-line;font-size:.95rem;line-height:1.8;background:var(--surface);border-radius:8px;padding:12px}
+.ai.wait{color:var(--muted)}
+button:focus-visible,textarea:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+@media (prefers-reduced-motion:no-preference){.card{animation:in .22s ease-out}@keyframes in{from{transform:translateY(6px);opacity:.4}}}
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header>
+    <div>
+      <h1>分析化学I 特訓</h1>
+      <div class="sub" id="sub"></div>
+    </div>
+    <div class="score" id="score"></div>
+  </header>
+  <div class="chips lecs" id="lecs" aria-label="講義回"></div>
+  <div class="tabs" role="tablist">
+    <button role="tab" id="tab-learn" aria-selected="true">まず読む</button>
+    <button role="tab" id="tab-drill" aria-selected="false">ドリル</button>
+  </div>
+  <section id="learn">
+    <div class="chips" id="toc" aria-label="章"></div>
+    <div id="lesson" style="margin-top:12px"></div>
+  </section>
+  <section id="drill" hidden>
+    <div class="strip" aria-hidden="true">
+      <svg id="chrom" viewBox="0 0 300 46" preserveAspectRatio="none"></svg>
+      <div class="axis"><span>注入</span><span>保持時間 →</span></div>
+    </div>
+    <div class="chips" id="chips" role="toolbar" aria-label="出題範囲" style="margin-top:14px"></div>
+    <main id="main" style="margin-top:12px"></main>
+  </section>
+</div>
+<div class="bar"><div class="in" id="bar"></div></div>
+
+<script>
+// ---------- 図の部品（講義データより先に定義する） ----------
+function gauss(peaks,W,base,clip){let d='';for(let x=0;x<=W;x+=1){let y=0;for(const p of peaks){const dx=x-p.x;if(Math.abs(dx)<p.s*4)y+=p.h*Math.exp(-dx*dx/(2*p.s*p.s))}d+=(x?'L':'M')+x+' '+(base-Math.min(y,clip||999)).toFixed(1)}return d}
+const T='font-size="11" fill="var(--muted)" font-family="Zen Kaku Gothic New, sans-serif"';
+
+// ---------- 講義データ ----------
+// L({id, date, title, short, ch:[{t:章名, html:本文}], q:[[章番号(0始まり), 問題文, {c:[正解,誤答,誤答,誤答]} または {a:'答え'}, 解説], ...]})
+// 問題IDは「回のid-その回の中での位置」。正誤記録がずれるので、問題は各回の q の末尾にだけ足すこと。
+const LECS=[];
+const L=o=>LECS.push(o);
+</script>
+<script>
+// ===== 10/2 分析化学入門・重量分析 =====
+L({id:'1002',date:'10/2',title:'分析化学入門・重量分析',short:'入門・重量分析',
+ch:[
+{t:'分析化学とは',html:`
+<h2>分析化学は「何が・どれだけ」を決める学問</h2>
+<p class="lead">試料の中に<b>何が入っているか</b>を調べるのが<b>定性分析</b>、<b>どれだけ入っているか</b>を決めるのが<b>定量分析</b>。この授業のほとんどは定量の話。</p>
+<h3>歴史をざっくり</h3>
+<ul>
+<li>アルキメデス：王冠に混ぜ物がないかを調べた（「ユーレカ！」）。分析の原型</li>
+<li>17世紀：ボイルが『懐疑的化学者』で「Analyst（分析家）」という言葉を使う。<b>重量分析</b>が始まる</li>
+<li>18〜19世紀：<b>容量分析（滴定）</b>。ゲイ・リュサックは銀の純度を 0.05% の精度で測った</li>
+<li>ラボアジェ（分析化学の父）：はかりで質量保存則を示した</li>
+<li>1894年 オストワルド：平衡定数で分析化学を理論的に説明</li>
+<li>20世紀：機器分析の時代へ</li>
+</ul>
+<h3>方法によって得意な濃度がちがう</h3>
+<div class="tblwrap"><table class="tbl">
+<tr><th>方法</th><th>濃度範囲(M)</th><th>精度</th><th>選択性</th></tr>
+<tr><td>重量分析</td><td>10⁻¹〜10⁻²</td><td>0.1%</td><td>よくない〜中</td></tr>
+<tr><td>滴定</td><td>10⁻¹〜10⁻⁴</td><td>0.1〜1%</td><td>中</td></tr>
+<tr><td>電位差</td><td>10⁻¹〜10⁻⁶</td><td>2%</td><td>優れている</td></tr>
+<tr><td>クロマト</td><td>10⁻³〜10⁻⁹</td><td>2〜5%</td><td>優れている</td></tr>
+</table></div>
+<div class="note">古典的な方法（重量・滴定）は<b>濃い試料を高精度</b>で、機器分析は<b>薄い試料を高選択的</b>に測るのが得意、と覚えるとよい。</div>
+<p class="slide">対応スライド：「分析化学とは」〜「分析法の比較」</p>`},
+
+{t:'重量分析',html:`
+<h2>重量分析：はかりで量る</h2>
+<p class="lead">目的成分だけを<b>分離して重さを量り</b>、化学量論から量を求める方法。</p>
+<div class="duo">
+<div><strong>利点</strong><span>操作がシンプル</span><span>比較標準物質や検量線がいらない（<b>基準分析法</b>）</span><span>正確さ・精度に優れる</span></div>
+<div><strong>欠点</strong><span>時間がかかる</span><span>選択性はあまりよくない</span></div>
+</div>
+<h3>沈殿法の手順</h3>
+<div class="flow">
+<div>試料を乾燥してひょう量</div>
+<div>酸（HCl・HNO₃・H₂SO₄・HClO₄・HF）で溶かす</div>
+<div>妨害成分を分離（溶媒抽出・マスキング・クロマト）</div>
+<div><b>沈殿剤</b>を加えて沈殿させる</div>
+<div>ろ過・洗浄 → 乾燥・強熱して安定な<b>ひょう量形</b>にする</div>
+<div>ひょう量 → 化学量論で計算</div>
+</div>
+<h3>代表的な組み合わせ</h3>
+<div class="tblwrap"><table class="tbl">
+<tr><th>目的</th><th>沈殿剤</th><th>ひょう量形</th><th>換算係数</th></tr>
+<tr><td>Ag</td><td>HCl</td><td>AgCl</td><td>0.7526</td></tr>
+<tr><td>Ba</td><td>H₂SO₄</td><td>BaSO₄</td><td>0.5884</td></tr>
+<tr><td>SO₄²⁻</td><td>BaCl₂</td><td>BaSO₄</td><td>0.4116</td></tr>
+<tr><td>Fe</td><td>NH₃</td><td>Fe₂O₃</td><td>0.6994</td></tr>
+<tr><td>Al</td><td>NH₃</td><td>Al₂O₃</td><td>0.5293</td></tr>
+<tr><td>Ca</td><td>(NH₄)₂C₂O₄</td><td>CaO</td><td>0.7147</td></tr>
+<tr><td>Mg</td><td>(NH₄)₂HPO₄</td><td>Mg₂P₂O₇</td><td>0.2184</td></tr>
+<tr><td>Ni</td><td>ジメチルグリオキシム</td><td>Ni(DMG)₂</td><td>0.2032</td></tr>
+</table></div>
+<p><b>換算係数</b> = 目的成分の式量 × 個数 ÷ ひょう量形の式量。たとえば Fe₂O₃ には Fe が2個あるので 2Fe/Fe₂O₃ = 2×55.85/159.69 = 0.6994。</p>
+<div class="formula">目的成分の質量 = ひょう量形の質量 × 換算係数</div>
+<h3>沈殿以外の分け方</h3>
+<ul>
+<li><b>電気分解法</b>：Cu²⁺ を白金電極に金属として析出させて量る</li>
+<li><b>揮発（吸収）法</b>：加熱して出た水などを吸収剤に吸わせて量る（結晶水の定量）</li>
+</ul>
+<p class="slide">対応スライド：「重量分析」〜「重量分析で用いられる沈殿」</p>`},
+
+{t:'容量分析と標準溶液',html:`
+<h2>容量分析（滴定）：体積で量る</h2>
+<p class="lead">濃度が分かっている溶液（<b>標準溶液</b>）を少しずつ加え、反応が終わるまでに使った<b>体積</b>から量を求める。</p>
+<h3>滴定は4種類（このあとの授業で1つずつ扱う）</h3>
+<ul><li>中和滴定（10/20）</li><li>キレート滴定（10/23）</li><li>酸化還元滴定（10/27）</li><li>沈殿滴定（10/30）</li></ul>
+<h3>標準溶液の作り方</h3>
+<p>NaOH は表面が空気中の CO₂ で炭酸塩になり、水も吸う（潮解性）ので、量っただけでは正確な濃度にならない。そこで</p>
+<div class="flow">
+<div>純度の高い<b>標準試薬</b>（JIS）を量って溶かす → <b>一次標準溶液</b></div>
+<div>一次標準溶液で、使いたい溶液の濃度を決める（<b>標定</b>）</div>
+<div>濃度が決まった溶液 → <b>二次標準溶液</b></div>
+</div>
+<div class="tblwrap"><table class="tbl">
+<tr><th>滴定</th><th>標準試薬の例</th></tr>
+<tr><td>中和</td><td>炭酸ナトリウム、フタル酸水素カリウム（NaOH の標定）</td></tr>
+<tr><td>キレート</td><td>亜鉛</td></tr>
+<tr><td>酸化還元</td><td>シュウ酸ナトリウム（KMnO₄ の標定）、二クロム酸カリウム、ヨウ素酸カリウム</td></tr>
+<tr><td>沈殿</td><td>塩化ナトリウム（AgNO₃ の標定）</td></tr>
+</table></div>
+<p>標準試薬の条件（10/6 の Q&A）：<b>高純度・安定・吸湿しにくい・組成が明確・式量が大きい</b>。式量が大きいと、同じ物質量でも重く量れるので、ひょう量の相対誤差が小さくなる。</p>
+<h3>ガラス器具の許容差（100 mL）</h3>
+<p>ビュレット・全量ピペット・メスフラスコは ±0.10 mL、<b>メスシリンダーは ±0.6 mL</b> と大きい。正確に量りたいときにメスシリンダーは使わない。</p>
+<p class="slide">対応スライド：「容量分析」〜「ガラス器具の許容誤差」</p>`},
+
+{t:'正確さと誤差',html:`
+<h2>正確さ・精度・2種類の誤差</h2>
+<div class="duo">
+<div><strong>正確さ</strong><span>真の値にどれだけ近いか</span></div>
+<div><strong>精度</strong><span>くり返したとき、どれだけそろうか（再現性）</span></div>
+</div>
+<p>射撃のまとで考えると、弾が<b>中心近く</b>に当たれば正確、<b>1か所に固まって</b>いれば精度が高い。精度が高いことは正確さに必要だが、<b>精度が高くても正確とは限らない</b>（固まっていても中心からずれていることがある）。</p>
+<h3>確定誤差（系統誤差）</h3>
+<p>原因を特定でき、<b>補正できる</b>誤差。いつも同じ向きにずれる。</p>
+<div class="defs">
+<div><span class="k">機器</span><span>欠陥のある装置、未補正のはかり・ガラス器具</span></div>
+<div><span class="k">操作</span><span>溶液の移し替えなど、実験操作で起こる</span></div>
+<div><span class="k">方法</span><span>試薬中の不純物、不純物の共沈、副反応など、方法そのもの</span></div>
+</div>
+<p>例：ガラス器具の容積は温度で変わるが、<b>温度が分かれば補正できる</b>。</p>
+<h3>不確定誤差（偶然誤差）</h3>
+<p>原因が分かっても<b>補正できない</b>誤差。測定値はランダムにばらつき、たくさん測ると<b>正規（ガウス）分布</b>になる。</p>
+<div class="formula">±1σ に 68%　±2σ に 95%　±3σ に 99.7%</div>
+<h3>絶対誤差と相対誤差</h3>
+<div class="formula">絶対誤差 = 測定値 − 真値（符号も含める）<small>真値 2.62 g、測定値 2.52 g → 2.52 − 2.62 = −0.10 g</small></div>
+<div class="formula">相対誤差 = 絶対誤差 ÷ 真値 × 100<small>−0.10/2.62 × 100 = −3.8%</small></div>
+<h3>真の値を知るのは難しい：1 kg の定義</h3>
+<p>水 1 L（18世紀末）→ <b>国際キログラム原器</b>（1889年、白金イリジウム）→ 2007年に原器が約 50 μg 軽くなっていたと分かる → 2011年に廃止を決定 → <b>2019年からプランク定数で定義</b>（²⁸Si の球を使う XRCD 法など）。</p>
+<p class="slide">対応スライド：「正確さと精度」〜「正確さ（真の値）を知るのは簡単ではない」</p>`},
+
+{t:'有効数字',html:`
+<h2>有効数字：最後の桁は ±1 あやしい</h2>
+<p class="lead">有効数字は、測定の精度に合わせて書く桁数。<b>最後の桁に ±1 の不確かさ</b>があることを表す。</p>
+<div class="tblwrap"><table class="tbl">
+<tr><th>書き方</th><th>有効数字</th></tr>
+<tr><td>92067 μm ／ 92.067 mm ／ 0.092067 m</td><td>どれも 5 桁（頭の 0 は数えない）</td></tr>
+<tr><td>0.092000 m</td><td>5 桁（末尾の 0 は数える）</td></tr>
+<tr><td>92000 μm</td><td>分からない</td></tr>
+<tr><td>9.20 × 10⁴ μm</td><td>3 桁</td></tr>
+</table></div>
+<h3>① 掛け算・割り算：相対的な不確かさで決まる</h3>
+<p>結果は<b>有効数字がいちばん少ない数</b>に合わせる。</p>
+<div class="formula">35.63 × 0.548 × 0.05300 / 1.1689 = 0.885<small>0.548（3桁）に合わせて 3 桁</small></div>
+<p>結果の不確かさを決めている数を<b>キーナンバー</b>という。桁数が同じなら<b>相対的に不確かなほう</b>がキーナンバー。</p>
+<ul>
+<li>100.0 と 0.4570 → <b>100.0</b>（1/1000 は 1/4570 より大きい）</li>
+<li>0.0067 と 0.10 → <b>0.10</b>（1/10 は 1/67 より大きい）</li>
+</ul>
+<h3>② 足し算・引き算：小数点の位置で決まる</h3>
+<p>結果は<b>小数点以下の桁がいちばん少ない数</b>に合わせる。</p>
+<div class="formula">Ag₂MoO₄ = 2×107.870 + 95.94 + 4×15.9994 = 375.6776 → 375.68<small>Mo の 95.94（小数第2位まで）に合わせる</small></div>
+<h3>③ 混ざっているとき</h3>
+<p>項ごとに処理するのがルール。ただし途中では余分な桁を残して計算し、<b>最後に一度だけ丸める</b>。</p>
+<div class="formula">(97.7/32.42 × 100.0 + 36.04)/687 = 0.491</div>
+<h3>④ 対数：仮数の桁を数える</h3>
+<p>log の結果の<b>小数点以下（仮数）の桁数</b> = 元の数の有効数字。整数部（指標）は桁を表すだけなので数えない。</p>
+<div class="formula">log(2.0) = 0.30　　log(2.0×10⁻³) = 0.30 − 3 = −2.70</div>
+<p>逆に、仮数が 0.072 なら 3 桁なので、真数は 10^0.072 = 1.18。</p>
+<p class="slide">対応スライド：「有効数字」「キーナンバー」</p>`},
+
+{t:'標準偏差',html:`
+<h2>標準偏差：ばらつきを数字にする</h2>
+<div class="formula">σ = √[Σ(xᵢ − μ)² / N]<small>無限回測ったときの標準偏差（μ は真の平均）</small></div>
+<div class="formula">s = √[Σ(xᵢ − x̄)² / (N − 1)]<small>有限回の測定から推定する標準偏差。平均 x̄ を計算するのに自由度を 1 つ使うので N − 1 で割る</small></div>
+<h3>関連する指標</h3>
+<div class="defs">
+<div><span class="k">s_mean</span><span><b>平均値の標準偏差（標準誤差）</b> = s/√N。N 回測った平均のばらつき。測定回数を4倍にすると半分になる</span></div>
+<div><span class="k">s_rsd</span><span><b>相対標準偏差</b> = s/x̄</span></div>
+<div><span class="k">CV</span><span><b>変動係数</b> = s/x̄ × 100（%）</span></div>
+</div>
+<h3>例題</h3>
+<p>15.67、15.69、16.03 を測った。</p>
+<ul>
+<li>x̄ = 15.80</li>
+<li>偏差の2乗：0.0169、0.0121、0.0529 → 和 0.0819</li>
+<li>s = √(0.0819/2) = <b>0.20</b></li>
+<li>s_mean = 0.20/√3 = <b>0.12</b></li>
+<li>s_rsd = 0.20/15.80 = <b>0.013</b>、CV = <b>1.3%</b></li>
+</ul>
+<div class="note">マイクロピペットでは、量る体積が小さいほど CV が大きい（例：0.2 μL で 10%、1000 μL で 0.2%）。少ない量ほど相対的にばらつく。</div>
+<p class="slide">対応スライド：「標準偏差」「平均値標準偏差、相対標準偏差、変動係数」</p>`}
+],
+q:[
+[0,'「試料に何が入っているか」を調べる分析を何という？',{c:['定性分析','定量分析','重量分析','機器分析']},'どれだけ入っているかを決めるのが定量分析。'],
+[0,'「分析化学の父」と呼ばれ、はかりを使って質量保存則を示したのは？',{c:['ラボアジェ','ボイル','オストワルド','ゲイ・リュサック']},'ボイルは『懐疑的化学者』で Analyst という言葉を使った人。オストワルドは平衡定数で分析化学を理論づけた人。'],
+[0,'容量分析（滴定）で、銀の純度を 0.05% の精度で測ったのは？',{c:['ゲイ・リュサック','アルキメデス','ラボアジェ','ボイル']},'18〜19世紀に容量分析が発展した。'],
+[0,'1894年に平衡定数を使って分析化学を理論的に説明したのは？',{c:['オストワルド','ラボアジェ','ボイル','アルキメデス']},''],
+[0,'次の分析法のうち、精度がおよそ 0.1% で、10⁻¹〜10⁻² M の濃い試料に向くのは？',{c:['重量分析','クロマトグラフィー','蛍光分析','電位差分析']},'クロマトは 10⁻³〜10⁻⁹ M・精度 2〜5%、蛍光は 10⁻⁶〜10⁻⁹ M。'],
+[0,'重量分析・滴定と比べたときの、クロマトグラフィーの特徴は？',{c:['薄い試料を高い選択性で測れる','精度が 0.1% と特に高い','有機物は測れない','標準物質がいらない']},'クロマト：10⁻³〜10⁻⁹ M、精度 2〜5%、選択性に優れ、有機物・多成分向け。'],
+[1,'重量分析が「基準分析法」と呼ばれる理由は？',{c:['標準物質や検量線なしで量を決められるから','もっとも速く測れるから','どんな成分も選択的に測れるから','もっとも薄い試料まで測れるから']},'はかりで量った質量と化学量論だけで決まる。欠点は時間がかかること。'],
+[1,'重量分析の欠点としてスライドで挙げたのは？',{c:['時間がかかる','精度が悪い','検量線が必要','装置が高価']},'操作はシンプルで、正確さ・精度に優れる。'],
+[1,'沈殿法で、沈殿をろ過・洗浄したあとにすることは？',{c:['乾燥・強熱してひょう量形にする','湿ったまますぐひょう量する','酸に溶かし直して滴定する','溶媒抽出で有機相に移す']},'手順：溶解 → 妨害成分の分離 → 沈殿 → ろ過・洗浄 → 乾燥・強熱 → ひょう量 → 計算'],
+[1,'Fe を NH₃ で沈殿させて強熱したときのひょう量形は？',{c:['Fe₂O₃','Fe(OH)₃','FeO','Fe₃O₄']},'換算係数 2Fe/Fe₂O₃ = 0.6994'],
+[1,'Mg を (NH₄)₂HPO₄ で沈殿させ、1100 °C で強熱したときのひょう量形は？',{c:['Mg₂P₂O₇','MgNH₄PO₄·6H₂O','MgO','Mg₃(PO₄)₂']},'沈殿は MgNH₄PO₄·6H₂O だが、強熱すると Mg₂P₂O₇ になる。'],
+[1,'Ni の重量分析に使う有機沈殿剤は？',{c:['ジメチルグリオキシム','8-キノリノール','テトラフェニルボレート','シュウ酸アンモニウム']},'8-キノリノールは Al、テトラフェニルボレートは K、シュウ酸アンモニウムは Ca。'],
+[1,'Fe₂O₃ の質量から Fe の質量を求める換算係数を式で書くと？',{c:['2Fe / Fe₂O₃','Fe / Fe₂O₃','Fe₂O₃ / 2Fe','3O / Fe₂O₃']},'ひょう量形 1 つに Fe が 2 個入っているので 2 倍する。2×55.85/159.69 = 0.6994'],
+[1,'試料 1.000 g から Fe₂O₃ が 0.4000 g 得られた。試料中の Fe の割合は？（換算係数 0.6994）',{c:['27.98%','40.00%','57.19%','69.94%']},'0.4000 × 0.6994 = 0.2798 g → 27.98%'],
+[1,'BaSO₄ が 0.5000 g 得られた。SO₄²⁻ は何 g？（換算係数 SO₄/BaSO₄ = 0.4116）',{c:['0.2058 g','0.2942 g','0.4116 g','1.215 g']},'0.5000 × 0.4116 = 0.2058 g'],
+[1,'Cu²⁺ を白金電極に金属として析出させて量る方法は？',{c:['電気分解法','揮発（吸収）法','沈殿法','溶媒抽出法']},'揮発法は結晶水の定量などに使う。'],
+[2,'滴定の4種類に入らないのは？',{c:['抽出滴定','中和滴定','キレート滴定','沈殿滴定']},'中和・キレート・酸化還元・沈殿の4種類。'],
+[2,'NaOH を量って溶かしただけでは正確な濃度にならない理由は？',{c:['CO₂ と反応し、水も吸うから','光でゆっくり分解するから','水にほとんど溶けないから','室温でも揮発しやすいから']},'表面が炭酸塩になり、潮解性もある。だから標定が必要。'],
+[2,'一次標準溶液を使って、ほかの溶液の正確な濃度を決める操作を何という？',{c:['標定','検量','希釈','校正']},'標定した溶液が二次標準溶液。'],
+[2,'NaOH 溶液の標定に使う標準試薬は？',{c:['フタル酸水素カリウム','塩化ナトリウム','シュウ酸ナトリウム','亜鉛']},'塩化ナトリウムは AgNO₃（沈殿滴定）、シュウ酸ナトリウムは KMnO₄（酸化還元）、亜鉛はキレート滴定。'],
+[2,'KMnO₄ 溶液の標定に使う標準試薬は？',{c:['シュウ酸ナトリウム','炭酸ナトリウム','塩化ナトリウム','亜鉛']},''],
+[2,'標準試薬に求められる性質として「ふさわしくない」のは？',{c:['式量が小さい','純度が高い','吸湿しにくい','組成がはっきりしている']},'式量は大きいほうがよい。同じ物質量でも重く量れるので、ひょう量の相対誤差が小さくなる。'],
+[2,'100 mL 用のガラス器具で、許容差がいちばん大きいのは？',{c:['メスシリンダー','ビュレット','全量ピペット','メスフラスコ']},'メスシリンダー ±0.6 mL、ほかは ±0.10 mL。'],
+[3,'「正確さ」と「精度」の違いは？',{a:'正確さ：真の値にどれだけ近いか\n精度：くり返し測ったときにどれだけそろうか（再現性）'},'精度が高くても、全部同じ向きにずれていれば正確ではない。'],
+[3,'精度と正確さの関係として正しいのは？',{c:['精度が高くても正確とは限らない','精度が高ければ必ず正確になる','正確なら精度は気にしなくてよい','精度と正確さは同じ意味の言葉']},'射撃で、弾が固まっていても中心から外れていることがある。'],
+[3,'確定誤差（系統誤差）の説明として正しいのは？',{c:['原因を特定でき、補正できる','原因が分かっても補正できない','測定値が正規分布に従う','くり返すと平均でゼロになる']},'機器誤差・操作誤差・方法誤差の3種類。'],
+[3,'試薬中の不純物や共沈、副反応による誤差はどれ？',{c:['方法誤差','機器誤差','操作誤差','不確定誤差']},'方法そのものに原因がある確定誤差。'],
+[3,'未補正のはかりやガラス器具による誤差はどれ？',{c:['機器誤差','方法誤差','操作誤差','不確定誤差']},''],
+[3,'不確定誤差（偶然誤差）だけがあるとき、多数の測定値の分布は？',{c:['正規（ガウス）分布','一様（平らな）分布','指数（片側）分布','二峰性（山が2つ）の分布']},'原因が分かっても補正できず、ランダムにばらつく。'],
+[3,'正規分布で、平均 ± 2σ の範囲に入る測定値の割合は？',{c:['約 95%','約 68%','約 99.7%','約 50%']},'±1σ 68%、±2σ 95%、±3σ 99.7%'],
+[3,'真値 2.62 g、測定値 2.52 g のときの相対誤差は？',{c:['−3.8%','−0.10%','+3.8%','−4.0%']},'絶対誤差 −0.10 g ÷ 2.62 × 100 = −3.8%。符号を含めるのがポイント。'],
+[3,'2019年から 1 kg は何で定義されている？',{c:['プランク定数','国際キログラム原器','4 °C の水 1 L の質量','アボガドロ数個の炭素原子']},'原器は 2007年に約 50 μg 軽くなっていたことが分かり、2011年に廃止が決まった。'],
+[4,'「0.092000 m」の有効数字は何桁？',{c:['5 桁','2 桁','6 桁','7 桁']},'頭の 0 は数えず、末尾の 0 は数える。'],
+[4,'「92000 μm」の有効数字は？',{c:['これだけでは分からない','5 桁と決まっている','2 桁と決まっている','3 桁と決まっている']},'末尾の 0 が測った桁か位取りか区別できない。9.20 × 10⁴ μm と書けば 3 桁。'],
+[4,'35.63 × 0.548 × 0.05300 / 1.1689 を正しい桁で答えると？',{c:['0.885','0.8853','0.89','0.88530']},'有効数字がいちばん少ない 0.548（3桁）に合わせる。'],
+[4,'100.0 と 0.4570 を掛け算するとき、キーナンバーはどっち？',{c:['100.0','0.4570','両方','どちらでもない']},'どちらも 4 桁だが、100.0 の不確かさは 1/1000、0.4570 は 1/4570。相対的に不確かなほうがキーナンバー。'],
+[4,'0.0067 と 0.10 のうち、キーナンバーはどっち？',{c:['0.10','0.0067','両方','どちらでもない']},'0.10 の不確かさは 1/10、0.0067 は 1/67。'],
+[4,'Ag₂MoO₄ の式量（Ag 107.870、Mo 95.94、O 15.9994）を正しい桁で答えると？',{c:['375.68','375.6776','375.7','376']},'足し算は小数点以下の桁がいちばん少ない数（Mo の 95.94）に合わせる。'],
+[4,'log(2.0 × 10⁻³) を正しい桁で答えると？',{c:['−2.70','−2.7','−2.699','−3']},'0.30 − 3 = −2.70。仮数（小数部分）の桁数 = 元の数の有効数字（2 桁）。'],
+[4,'対数の仮数が 0.072 のとき、真数を正しい桁で書くと？',{c:['1.18','1.2','1.181','1.1803']},'仮数の小数点以下のゼロはすべて有効なので 3 桁。10^0.072 = 1.18'],
+[5,'有限回の測定から求める標準偏差 s で、N ではなく N − 1 で割るのはなぜ？',{a:'平均値 x̄ を計算するのにデータの自由度を 1 つ使うから（偏差の合計は必ず 0 になるので、自由に動ける偏差は N − 1 個）'},''],
+[5,'15.67、15.69、16.03 の標準偏差 s は？',{c:['0.20','0.12','0.013','0.082']},'x̄ = 15.80。偏差の2乗の和 0.0819 を 2 で割って平方根。'],
+[5,'標準偏差 s = 0.20、測定回数 N = 3 のときの平均値の標準偏差（標準誤差）は？',{c:['0.12','0.20','0.067','0.35']},'s_mean = s/√N = 0.20/√3'],
+[5,'平均 15.80、s = 0.20 のときの変動係数 CV は？',{c:['1.3%','0.013%','13%','0.20%']},'CV = s/x̄ × 100'],
+[5,'測定回数を 4 倍に増やすと、平均値の標準偏差 s/√N はどうなる？',{c:['約 1/2','約 1/4','約 2 倍','変わらない']},'√4 = 2 で割ることになる。'],
+[5,'マイクロピペットで量る体積を小さくすると、変動係数（CV）は一般にどうなる？',{c:['大きくなる','小さくなる','変わらない','ゼロになる']},'0.2 μL で CV 10%、1000 μL で 0.2% のように、少量ほど相対的にばらつく。']
+]});
+
+// ===== 10/6 分析値の取り扱い =====
+L({id:'1006',date:'10/6',title:'分析値の取り扱い',short:'分析値の取り扱い',
+ch:[
+{t:'桁と不確かさ',html:`
+<h2>結果は「値 ± 不確かさ」で書く</h2>
+<p class="lead">有効数字は「最後の桁が ±1 あやしい」という大ざっぱな表し方。<b>標準偏差</b>が分かれば、それをもっと正確に書ける。</p>
+<h3>標準偏差で桁が決まる</h3>
+<ul>
+<li>29.02 ± 0.02 → 最後の桁に ±2 の不確かさ</li>
+<li>s が大きいなら桁を減らす：<b>29.0 ± 0.2</b></li>
+<li>s が小さいなら桁を増やす：<b>29.020 ± 0.002</b></li>
+</ul>
+<div class="note">不確かさはふつう 1 桁（先頭が 1 や 2 なら 2 桁でもよい）で書き、<b>値の桁を不確かさの桁にそろえる</b>。途中の計算は 2〜3 桁多めに残し、最後に1回だけ丸める。</div>
+<h3>授業の問題</h3>
+<div class="formula">log 42.0 = 1.623　　log 4.20 = 0.623<small>元の数が 3 桁 → 仮数（小数部分）を 3 桁</small></div>
+<div class="formula">165.352 + 56.32 + 4.6658 − 12.8452 = 213.49<small>小数第2位までしかない 56.32 に合わせる</small></div>
+<div class="formula">[(23.568/11.5) × 50.00 + 76.03] / 592 = 0.302<small>途中は 102.4696…、178.4996… と多めに残し、最後に 3 桁へ</small></div>
+<h3>4回測った重さの問題</h3>
+<p>29.8、30.2、28.6、29.7 mg → x̄ = 29.575、s = 0.685</p>
+<ul>
+<li>標準偏差で書くと <b>29.6 ± 0.7 mg</b></li>
+<li>平均値の標準偏差 s/√4 = 0.34 で書くと <b>29.6 ± 0.3 mg</b></li>
+</ul>
+<p class="slide">対応スライド：「有効数字桁数と標準偏差の関係」「問題」</p>`},
+
+{t:'誤差の伝播',html:`
+<h2>誤差の伝播：計算すると不確かさも伝わる</h2>
+<h3>足し算・引き算：標準偏差を2乗して足す</h3>
+<div class="formula">s_d = √(s_a² + s_b² + s_c²)<small>引き算でも＋で足す。s² は分散（variance）</small></div>
+<p>例：(65.56 ± 0.07) + (16.13 ± 0.01) − (23.18 ± 0.02) = 58.51 ± ?</p>
+<div class="formula">s_d = √(0.07² + 0.01² + 0.02²) = 0.07 → 58.51 ± 0.07</div>
+<h3>掛け算・割り算：相対標準偏差を2乗して足す</h3>
+<div class="formula">a = bc/d のとき　s_a,rsd = √(s_b,rsd² + s_c,rsd² + s_d,rsd²)</div>
+<p>例：(13.67 ± 0.02)(120.4 ± 0.2)/(4.623 ± 0.006) = 356.0 ± ?</p>
+<ul>
+<li>相対標準偏差：0.0015、0.0017、0.0013</li>
+<li>合成：√(0.0015² + 0.0017² + 0.0013²) = 2.6 × 10⁻³</li>
+<li>356.0 × 2.6 × 10⁻³ = 0.93 → <b>356.0 ± 0.9</b></li>
+</ul>
+<div class="note">2乗して足すのは、<b>独立な誤差どうしは分散が足し算になる</b>から。誤差が打ち消し合うこともあるので、単純に足すより小さくなる。</div>
+<h3>キーナンバーより標準偏差が優先</h3>
+<p>標準偏差が分かっているときは、<b>桁数が少ない数が不確かさを支配するとは限らない</b>。</p>
+<ul>
+<li>(73.1 ± 0.2)(2.245 ± 0.008) = 164.1 ± 0.7　相対：0.0027 と <b>0.0036</b> → 2.245 のほうが効いている</li>
+<li>(73.1 ± 0.9)(2.245 ± 0.008) = 164 ± 2　相対：<b>0.012</b> と 0.0036</li>
+</ul>
+<h3>授業の問題</h3>
+<p>(12.18 ± 0.08)(23.04 ± 0.07)/(3.247 ± 0.006)</p>
+<ul>
+<li>相対：0.006568、0.003038、0.001848 → 合成 0.007469</li>
+<li>値 86.4266 × 0.007469 = ±0.6455</li>
+<li>答え <b>86.4 ± 0.6</b>。86.43 ± 0.65 を丸めて 86.4 ± 0.7 にするのは<b>二重丸めでダメ</b></li>
+</ul>
+<p class="slide">対応スライド：「誤差の伝播」「誤差の伝播と有効数字」</p>`},
+
+{t:'信頼区間と検定',html:`
+<h2>信頼区間・F 検定・t 検定</h2>
+<h3>信頼区間：真の平均がありそうな範囲</h3>
+<div class="formula">μ = x̄ ± t·s/√N<small>t は自由度 ν = N − 1 と信頼水準で決まる（95%：ν=2 で 4.303、ν=9 で 2.262、∞ で 1.960）</small></div>
+<p>例：93.50、93.58、93.43 → x̄ = 93.50、s = 0.075 → 93.50 ± 4.303 × 0.075/√3 = <b>93.50 ± 0.19</b>（95%）</p>
+<div class="note">95% 信頼区間の意味：同じ実験を何度もくり返して区間を作ると、そのうち 95% の区間が真の値を含む。</div>
+<h3>F 検定：ばらつき（分散）に差があるか</h3>
+<div class="formula">F = s₁² / s₂²<small>大きいほうの分散を分子に。自由度 ν₁ = N₁ − 1、ν₂ = N₂ − 1</small></div>
+<p>例：s₁² = 8.3（N₁ = 7）、s₂² = 4.8（N₂ = 6）→ F = 1.7。表の値 4.95 より小さいので<b>有意差なし</b>。</p>
+<h3>t 検定：平均値に差があるか</h3>
+<div class="formula">t = (x̄₁ − x̄₂)/s_p × √(N₁N₂/(N₁ + N₂))<small>s_p = √{[Σ(xᵢ₁ − x̄₁)² + Σ(xᵢ₂ − x̄₂)²]/(N₁ + N₂ − 2)}、自由度 N₁ + N₂ − 2</small></div>
+<ol>
+<li>まず <b>F 検定</b>で2組の精度（分散）に差がないことを確かめる</li>
+<li>差がなければ、2組をまとめた標準偏差 s_p で t を計算</li>
+<li>計算した t が表の値より<b>大きければ有意差あり</b></li>
+</ol>
+<p>例：x̄₁ = 19.65、x̄₂ = 19.24 → F = 4.31 < 6.26 で精度は同等、s_p = 0.546、t = 1.2 < 2.262 → <b>有意差なし</b>。</p>
+<div class="note">表の値の意味：「本当は差がない」としたとき、偶然ではこれ以上大きな値が出にくい境目。分散に差があるときは Welch の t 検定、3群以上なら分散分析（ANOVA）。</div>
+<h3>実例：脳トレの論文</h3>
+<p>Nature（2010）の脳トレ研究では、訓練した課題の成績は上がったが、ほかの能力への効果（転移）は 99% 水準で有意差なしだった。</p>
+<p class="slide">対応スライド：「信頼区間」「F検定」「t検定」</p>`},
+
+{t:'検量線と検出限界',html:`
+<h2>最小二乗法で検量線をひく</h2>
+<p class="lead">濃度 x が分かっている標準液を測って応答 y を得て、<b>y = mx + b</b> の直線を決める。直線と点の y 方向のずれの2乗の和 S を最小にする。</p>
+<div class="formula">S = Σ[yᵢ − (mxᵢ + b)]²　→　∂S/∂m = 0、∂S/∂b = 0</div>
+<div class="formula">m = [Σxᵢyᵢ − ΣxᵢΣyᵢ/n] / [Σxᵢ² − (Σxᵢ)²/n]　　b = ȳ − m x̄</div>
+<div class="note">y 方向のずれを使うのは、標準液の濃度 x は正確に決まっていて、<b>ばらつくのは測る応答 y のほう</b>と考えるから。</div>
+<h3>例：リボフラビンの蛍光</h3>
+<p>Σx = 1.500、Σy = 83.6、Σx² = 0.850、Σxy = 46.58、n = 5</p>
+<ul>
+<li>m = (46.58 − 1.500×83.6/5)/(0.850 − 1.500²/5) = 21.5/0.400 = <b>53.8</b></li>
+<li>b = 83.6/5 − 53.75 × 0.300 = <b>0.6</b></li>
+<li>試料の y = 15.4 なら x = (15.4 − 0.6)/53.8 = <b>0.275 μg/mL</b></li>
+</ul>
+<h3>直線の不確かさ</h3>
+<div class="defs">
+<div><span class="k">s_y</span><span>√{Σ[yᵢ − (mxᵢ + b)]²/(n − 2)}。m と b の2つを決めたので自由度は n − 2</span></div>
+<div><span class="k">s_m</span><span>傾きの標準偏差 = √[s_y²/Σ(xᵢ − x̄)²]</span></div>
+<div><span class="k">s_b</span><span>切片の標準偏差</span></div>
+</div>
+<p>例では s_y = 0.64、s_m = ±1.0、s_b = ±0.4 → 濃度は <b>0.28 ± 0.01 μg/mL</b>。</p>
+<h3>検出限界</h3>
+<p>ブランク（切片）より<b>3 × 標準偏差</b>だけ大きい信号なら「本物」とみなす。</p>
+<div class="formula">y = b + 3s_b に対応する濃度 → x = 3s_b/m</div>
+<div class="note">「3」の意味：正規分布なら、背景が平均 + 3SD を超えることはまれ（約0.1%）。偽陽性を抑えるための目安。</div>
+<p class="slide">対応スライド：「最小二乗法」〜「検出限界」</p>`},
+
+{t:'Q&Aのまとめ',html:`
+<h2>質問コーナーで出た大事なこと</h2>
+<h3>正確さと精度の確かめ方</h3>
+<ul>
+<li><b>精度</b>：同じ測定をくり返せば分かる</li>
+<li><b>正確さ</b>：標準物質を測る、空試験（ブランク）、添加回収実験、別の方法と比べる、ほかの研究室と比べる</li>
+</ul>
+<h3>誤差の扱い</h3>
+<ul>
+<li>確定誤差は一定方向のずれなので<b>補正できる</b>。操作ミスは再実験</li>
+<li>乾燥しても水が残る：いつも残る分は確定誤差、残り方のばらつきは不確定誤差</li>
+<li>外れ値は理由があれば除外。統計的には <b>Q 検定</b></li>
+<li>摂氏温度には相対標準偏差を使わない（0 °C が本当の 0 ではないので、K で考える）</li>
+</ul>
+<h3>どれを書けばいい？</h3>
+<div class="defs">
+<div><span class="k">s</span><span>個々の測定値のばらつき</span></div>
+<div><span class="k">s/√N</span><span>平均値の不確かさ（標準誤差）</span></div>
+<div><span class="k">区間</span><span>真の平均がありそうな範囲（信頼区間）</span></div>
+</div>
+<h3>データの種類と分布</h3>
+<p>数を数えるデータ（カウント）は<b>ポアソン分布</b>、割合は<b>二項分布</b>、濃度は対数正規分布になりやすい。</p>
+<h3>単位の定義</h3>
+<p>kg はプランク定数（キッブルバランス、シリコン球の XRCD 法）、秒は Cs-133、メートルは光速で定義されている。</p>
+<p class="slide">対応スライド：10/9・10/13 冒頭の「質問お答えコーナー」</p>`}
+],
+q:[
+[0,'29.02 ± 0.02 の計算で、標準偏差が 0.2 になった。正しい書き方は？',{c:['29.0 ± 0.2','29.02 ± 0.2','29.020 ± 0.2','29 ± 0.2']},'不確かさの桁に値の桁をそろえる。'],
+[0,'log 42.0 を正しい桁で答えると？',{c:['1.623','1.62','1.6232','1.6']},'42.0 は 3 桁なので仮数（小数部分）を 3 桁。'],
+[0,'165.352 + 56.32 + 4.6658 − 12.8452 を正しい桁で答えると？',{c:['213.49','213.4926','213.5','213.493']},'小数第2位までの 56.32 に合わせる。'],
+[0,'[(23.568/11.5) × 50.00 + 76.03] / 592 を正しい桁で答えると？',{c:['0.302','0.3015','0.30','0.30152']},'11.5 と 592 が 3 桁。途中は多めに残し、最後に丸める。'],
+[0,'29.8、29.7、30.2、28.6 mg の結果を、平均値の標準偏差を使って書くと？',{c:['29.6 ± 0.3 mg','29.6 ± 0.7 mg','29.58 ± 0.34 mg','30 ± 1 mg']},'s = 0.685、s/√4 = 0.34 → 1 桁にして ±0.3。s そのもので書くなら 29.6 ± 0.7。'],
+[0,'計算の途中で数を丸めるときの注意は？',{c:['途中は多めに残し、最後に1回だけ丸める','途中でも毎回有効数字に丸める','最後は丸めずにそのまま書く','途中は切り捨て、最後は四捨五入']},'途中で何度も丸めると誤差がたまる。'],
+[1,'(a ± sₐ) − (b ± s_b) の標準偏差は？',{c:['√(sₐ² + s_b²)','√(sₐ² − s_b²)','sₐ − s_b','sₐ + s_b']},'引き算でも分散は足し算。'],
+[1,'(65.56 ± 0.07) + (16.13 ± 0.01) − (23.18 ± 0.02) の標準偏差は？',{c:['0.07','0.10','0.04','0.06']},'√(0.07² + 0.01² + 0.02²) = 0.0735 ≈ 0.07'],
+[1,'掛け算・割り算で誤差を伝播させるときに2乗して足すのは？',{c:['相対標準偏差','標準偏差そのもの','分散の逆数','有効数字の桁数']},''],
+[1,'(13.67 ± 0.02)(120.4 ± 0.2)/(4.623 ± 0.006) = 356.0 の不確かさは？',{c:['± 0.9','± 0.3','± 0.003','± 2']},'相対 0.0015、0.0017、0.0013 → √(和の2乗) = 0.0026 → 356.0 × 0.0026 = 0.93'],
+[1,'誤差の伝播で、標準偏差や相対標準偏差を「2乗して足す」理由は？',{a:'独立な誤差どうしでは分散が足し算になるから（ずれが打ち消し合うこともあるので、単純に足すより小さくなる）'},''],
+[1,'(73.1 ± 0.2)(2.245 ± 0.008) で、結果の不確かさを主に決めているのは？',{c:['2.245','73.1','両方同じくらい','どちらでもない']},'相対標準偏差 73.1 → 0.0027、2.245 → 0.0036。桁数が多い 2.245 のほうが効いている。'],
+[1,'(12.18 ± 0.08)(23.04 ± 0.07)/(3.247 ± 0.006) の正しい答えは？',{c:['86.4 ± 0.6','86.4 ± 0.7','86.43 ± 0.65','86 ± 1']},'86.43 ± 0.65 をもう一度丸めて 86.4 ± 0.7 にするのは二重丸めでダメ。'],
+[1,'y = ab で、a の相対標準偏差が 1%、b が誤差なしのとき y の相対標準偏差は？',{c:['1%','2%','0.5%','0.01%']},''],
+[2,'信頼区間 x̄ ± t·s/√N で、t を決めるのは？',{c:['自由度 N − 1 と信頼水準','測定値の平均の大きさ','標準偏差の値そのもの','測定に使った単位']},'95% なら ν = 2 で 4.303、ν = 9 で 2.262、∞ で 1.960。'],
+[2,'93.50、93.58、93.43（x̄ = 93.50、s = 0.075）の 95% 信頼区間は？（t = 4.303）',{c:['93.50 ± 0.19','93.50 ± 0.075','93.50 ± 0.32','93.50 ± 0.043']},'4.303 × 0.075/√3 = 0.186'],
+[2,'95% 信頼区間の意味として正しいのは？',{c:['くり返し区間を作ると、その 95% が真の値を含む','測定値の 95% がこの区間の中に入る','真の値が 95% の確率で平均と一致する','区間の幅が平均値の 95% にあたる']},''],
+[2,'F 検定で比べるのは？',{c:['2組のデータの分散','2組のデータの平均値','測定値と真の値の差','検量線の傾きと切片']},'F = s₁²/s₂²（大きいほうを分子）。平均を比べるのは t 検定。'],
+[2,'s₁² = 8.3（N₁ = 7）、s₂² = 4.8（N₂ = 6）。表の F 値が 4.95 のとき、結論は？',{c:['F = 1.7 なので有意差なし','F = 1.7 なので有意差あり','F = 0.58 なので有意差なし','F = 3.5 なので有意差あり']},''],
+[2,'2組の平均を t 検定で比べる前に、まずすることは？',{c:['F 検定で分散に差がないか確かめる','Q 検定で外れ値を全部除く','検量線をひく','信頼区間を 99% にする']},'分散に差があれば Welch の t 検定を使う。'],
+[2,'2組をまとめた標準偏差 s_p を使う t 検定の自由度は？',{c:['N₁ + N₂ − 2','N₁ + N₂ − 1','N₁ + N₂','N₁ − N₂']},''],
+[2,'計算した t 値が表の t 値より大きいときの結論は？',{c:['有意差あり（偶然では説明しにくい）','有意差なし（偶然で説明できる）','測定をやり直す必要がある','2組の分散に差がある']},'表の値は「本当は差がない」ときに偶然では超えにくい境目。'],
+[2,'3つ以上の群の平均を比べたいときに使うのは？',{c:['分散分析（ANOVA）','F 検定（分散の比）','Q 検定（外れ値）','最小二乗法（直線）']},''],
+[3,'最小二乗法で最小にするものは？',{c:['y 方向のずれの2乗の和','点と直線の最短距離の和','x 方向のずれの和','ずれの絶対値の最大値']},'標準液の濃度 x は正確で、ばらつくのは測った応答 y と考える。'],
+[3,'検量線の傾き m を求める式は？',{c:['[Σxy − ΣxΣy/n] / [Σx² − (Σx)²/n]','[Σx² − (Σx)²/n] / [Σxy − ΣxΣy/n]','Σy / Σx','ȳ − x̄']},'切片は b = ȳ − m x̄'],
+[3,'Σx = 1.500、Σy = 83.6、Σx² = 0.850、Σxy = 46.58、n = 5 のときの傾き m は？',{c:['53.8','55.7','21.5','0.40']},'(46.58 − 25.08)/(0.850 − 0.450) = 21.5/0.400'],
+[3,'y = 53.8x + 0.6 で、試料の y が 15.4 のときの x は？',{c:['0.275','0.297','0.286','0.264']},'(15.4 − 0.6)/53.8'],
+[3,'検量線の s_y で、n − 2 で割る理由は？',{c:['傾きと切片の2つを決めるのに自由度を使うから','測定点の最初と最後を除くから','x と y の2つの変数があるから','直線は2点で決まるから']},''],
+[3,'検出限界に対応する濃度は？（m：傾き、s_b：切片の標準偏差）',{c:['3s_b / m','s_b / m','m / 3s_b','3m / s_b']},'信号 y = b + 3s_b に対応する濃度。'],
+[3,'検出限界の「3SD」の 3 にはどんな意味がある？',{a:'正規分布なら背景のばらつきが平均＋3SDを超えることはまれなので、それより大きい信号を本物とみなせば偽陽性を抑えられる（経験的な基準）'},''],
+[3,'検量線の切片の標準偏差 s_b とブランクの標準偏差の違いは？',{c:['s_b は検量線全体から、ブランクは0濃度付近から','同じものを別の名前で呼んでいるだけ','s_b は x 方向、ブランクは y 方向のばらつき','s_b は真の値、ブランクは推定した値']},''],
+[4,'正確さを確かめる方法として「ふさわしくない」のは？',{c:['同じ試料を何度もくり返し測る','濃度が保証された標準物質を測る','既知量を足して添加回収実験をする','原理のちがう別の分析法と比べる']},'くり返しで分かるのは精度。'],
+[4,'乾燥後も水分が残るときの誤差の考え方は？',{c:['常に残る分は確定誤差、ばらつきは不確定誤差','残る分もばらつきもすべて不確定誤差','残る分もばらつきもすべて確定誤差','操作ミスなので誤差としては扱わない']},''],
+[4,'外れ値を統計的に判定する方法は？',{c:['Q 検定','t 検定','F 検定','最小二乗法']},'理由が分かっている外れ値は除外してよい。'],
+[4,'平均値の不確かさを示したいときに使うのは？',{c:['標準誤差 s/√N','標準偏差 s そのもの','変動係数 CV（%）','分散 s²（2乗の値）']},'個々のばらつきなら s、真の平均がありそうな範囲なら信頼区間。'],
+[4,'摂氏温度（°C）に相対標準偏差を使わない理由は？',{c:['0 °C が本当のゼロではないから','温度は測れないから','温度は必ず正規分布しないから','単位がないから']},'K（絶対温度）で考える。'],
+[4,'「何個あるか」を数えるデータのばらつきが従いやすい分布は？',{c:['ポアソン分布','二項分布','対数正規分布','一様分布']},'割合は二項分布、濃度は対数正規分布になりやすい。']
+]});
+
+// ===== 10/9 生化学分析・免疫分析 =====
+L({id:'1009',date:'10/9',title:'生化学分析・免疫分析',short:'免疫分析',
+ch:[
+{t:'結合の強さ',html:`
+<h2>「くっつきやすさ」を数字で表す</h2>
+<p class="lead">免疫分析は、抗体が目的の分子（抗原）に<b>特異的にくっつく</b>ことを使う。まずはくっつく強さの表し方から。</p>
+<div class="formula">A + B ⇄ AB　（結合の速度定数 k₁、解離の速度定数 k₋₁）</div>
+<div class="defs">
+<div><span class="k">Ka</span><span><b>結合定数</b> = [AB]/[A][B] = k₁/k₋₁（単位 M⁻¹）。大きいほど強くくっつく</span></div>
+<div><span class="k">Kd</span><span><b>解離定数</b> = [A][B]/[AB] = k₋₁/k₁（単位 M）。<b>小さいほど</b>強くくっつく。生化学ではこちらをよく使う</span></div>
+</div>
+<p>Kd = 1/Ka。Kd は「半分の分子がくっついている状態の濃度」とイメージするとよい。</p>
+<h3>生体分子はとても強くくっつく</h3>
+<div class="tblwrap"><table class="tbl">
+<tr><th>組み合わせ</th><th>Kd の目安</th></tr>
+<tr><td>抗体 − タンパク質抗原</td><td>nM（10⁻⁹ M）</td></tr>
+<tr><td>ストレプトアビジン − ビオチン</td><td>fM（10⁻¹⁵ M）</td></tr>
+<tr><td>α-シクロデキストリン − p-ヒドロキシ安息香酸（人工分子）</td><td>mM（10⁻³ M）</td></tr>
+</table></div>
+<p>くっつく力は<b>分子間力・静電的相互作用・疎水性相互作用</b>（水素結合なども含む非共有結合）。1つ1つは弱いが、<b>接触面積が大きく</b>たくさん集まるので強くなる（抗体の例では接触面積 785 Å²、log Ka 8.9）。</p>
+<div class="note">単位の接頭辞は 10³ ごと：ミリ m（10⁻³）→ マイクロ μ（10⁻⁶）→ ナノ n（10⁻⁹）→ ピコ p（10⁻¹²）→ フェムト f（10⁻¹⁵）→ アト a（10⁻¹⁸）→ ゼプト z（10⁻²¹）。</div>
+<p class="slide">対応スライド：「結合定数と解離定数」〜「生体分子間の相互作用」</p>`},
+
+{t:'抗体',html:`
+<h2>抗体：どんな形にもくっつける道具</h2>
+<p class="lead">抗体（IgG）は Y 字型のタンパク質。<b>L鎖とH鎖それぞれ3か所の超可変領域</b>（ループ構造）が集まって、抗原と結合する部分をつくる。</p>
+<p>結合部位の形は、<b>くぼみ・溝・平面</b>など相手に合わせていろいろ。</p>
+<h3>なぜ 10¹² 種類もの抗体が作れるのか</h3>
+<ol>
+<li>遺伝子の <b>V 断片と J 断片</b>（H鎖では <b>D 断片</b>も）を無作為に選んでつなぐ<br>→ L鎖 316 通り × H鎖 8262 通り ≈ 260万通り</li>
+<li>つなぐときにヌクレオチドが欠けたり入ったりする</li>
+<li>複製のときに変異が入る</li>
+</ol>
+<div class="note">抗体と酵素はどちらも「形・電荷・疎水性が相補的」なことで相手を選ぶ。ちがいは、酵素は基質をくっつけたあと<b>反応させる</b>のに対し、抗体は主に<b>くっついて見分けるだけ</b>なこと。</div>
+<p class="slide">対応スライド：「抗体の構造」「抗体の多様性」</p>`},
+
+{t:'イムノクロマト・ELISA',html:`
+<h2>抗体で挟んで見つける</h2>
+<h3>イムノクロマト（妊娠検査薬・インフルエンザ検査）</h3>
+<div class="flow">
+<div>試料をたらす。<b>金コロイド（約60 nm）で標識した1次抗体</b>が抗原にくっつく</div>
+<div>ニトロセルロース膜をしみて流れる</div>
+<div><b>判定部</b>：固定した2次抗体が、1次抗体とは別の場所で抗原をつかむ → 抗体‐抗原‐抗体の<b>サンドイッチ</b>で赤い線</div>
+<div><b>リファレンス部</b>：固定した抗体が1次抗体そのものをつかむ → 液がちゃんと流れた確認（コントロール）</div>
+</div>
+<p>インフルエンザなら 0.1 nM を 10 分で検出。金コロイドは色が濃く、抗体をつけやすく、安定で、装置なしで目で見られる。</p>
+<div class="note">コントロールの線は「標識抗体が流れた」ことの確認で、<b>検体を十分に採れたかまでは保証しない</b>。</div>
+<h3>ELISA（酵素免疫測定法）</h3>
+<p>プレートに固定した1次抗体 − 抗原 − <b>酵素で標識した2次抗体</b>の3者複合体を作り、洗ったあと基質を入れる。酵素が基質をどんどん蛍光色素に変えるので、<b>信号が増幅される</b>。</p>
+<p>例：PSA（前立腺がんのマーカー）を β-ガラクトシダーゼ標識2次抗体と基質 FDG で測る → 検出限界 9 pM。</p>
+<div class="duo">
+<div><strong>利点</strong><span>抗体があればどんなマーカーでも</span><span>同じ操作で測れる</span><span>確立されていて簡便</span></div>
+<div><strong>欠点</strong><span>感度は 1〜10 pM 程度</span><span>ウイルス感染初期（10〜100 aM）には足りない</span></div>
+</div>
+<p>1次抗体に直接酵素をつけないのは、1次抗体は抗原がなくても固定されているので、それでは<b>抗原の有無を区別できない</b>から。</p>
+<h3>High-dose hook effect</h3>
+<p>抗原が<b>多すぎる</b>と、1次抗体と2次抗体がそれぞれ別の抗原にくっついてしまい、サンドイッチができない。2次抗体は洗い流されるので<b>信号が下がり、濃度を低く見積もってしまう</b>。</p>
+<p>見分け方：試料を<b>段階希釈</b>して測る。ふつうは薄めると信号が下がるが、フック効果があると<b>薄めたほうが信号が上がる</b>。イムノクロマトでも起こりうる。</p>
+<p class="slide">対応スライド：「イムノクロマトグラフィー」〜「High-dose hook effect」</p>`},
+
+{t:'デジタルELISA',html:`
+<h2>デジタル ELISA：1分子を数える</h2>
+<p class="lead">ELISA の感度の壁は、酵素が作った蛍光分子が<b>大きな体積に薄まってしまう</b>こと。そこで、反応の場を<b>フェムトリットル（fL = 10⁻¹⁵ L）</b>まで小さくする。</p>
+<h3>授業の計算問題</h3>
+<p>1秒に10回反応する酵素1分子で、生成物を 1 μM にするには？</p>
+<div class="formula">1 mL：1×10⁻⁶ mol/L × 1×10⁻³ L × 6×10²³ = 6×10¹⁴ 個 → 6×10¹³ 秒 ≈ 190万年</div>
+<div class="formula">1 fL：1×10⁻⁶ × 1×10⁻¹⁵ × 6×10²³ = 600 個 → 60 秒</div>
+<p>μL と fL は<b>10億倍</b>ちがう（東京ドームと 1 L のペットボトルくらい）。</p>
+<h3>しくみ</h3>
+<ul>
+<li>抗体をつけたビーズで抗原をつかみ、酵素標識2次抗体でサンドイッチ → 洗う</li>
+<li>ビーズを fL の小部屋（PDMS で押さえる、疎水性ポリマー CYTOP のパターン＋油で水滴を閉じ込める）に入れる</li>
+<li>β-gal が FDG を蛍光物質（フルオレセイン）に変え、<b>酵素が1個でもあればその部屋が光る</b></li>
+<li>光った部屋を <b>0/1 で数える</b>（デジタル）。光る水滴の割合(%) = 光る水滴の数 / ビーズを捕まえた数 × 100</li>
+</ul>
+<div class="note">反応の<b>前</b>に小部屋に分けるのがポイント。反応の後で分けても、生成物はもう薄まっている。</div>
+<h3>どこまで薄い濃度が測れるか</h3>
+<ul>
+<li>PSA の検出限界 <b>2 aM</b>（従来の ELISA の約100万倍の感度）。基準は「バックグラウンド＋3SD」</li>
+<li>限界を決めているのは、<b>酵素標識2次抗体がビーズに非特異的にくっつくこと</b>（抗原 0 M でも光る部屋が出る原因）</li>
+<li>理想的な結合（ストレプトアビジン‐ビオチン、Kd ≈ fM）なら <b>10 zM</b>（1 mL に約6分子）まで</li>
+<li>部屋の数 N を増やすと、陽性率のばらつきが SD/√N で小さくなる（100万個で 2 aM、10万個で 13 aM、8600個で 37 aM）</li>
+</ul>
+<p>応用：感染のごく初期（10〜100 aM）、がん摘出後の再発、アルツハイマー（10 pM 未満）、尿や唾液での検査、新しいマーカー探し。インフルエンザのノイラミニダーゼ活性を15分で測る例もある（従来の抗原検査の1000倍）。</p>
+<div class="note">検出が<b>速くなる</b>ことと検出限界が<b>下がる</b>ことは同じではない。検出限界は非特異吸着、背景のばらつき、部屋の数などにも左右される。陽性の部屋が多すぎると飽和するので、そのときは試料を薄める。</div>
+<p class="slide">対応スライド：「デジタルELISA」〜「検出限界の理論値」</p>`}
+],
+q:[
+[0,'A + B ⇄ AB の解離定数 Kd の式は？',{c:['[A][B]/[AB]','[AB]/[A][B]','k₁/k₋₁','[A]/[AB]']},'Kd = k₋₁/k₁。結合定数 Ka = [AB]/[A][B] = k₁/k₋₁ の逆数。'],
+[0,'解離定数 Kd の単位は？',{c:['M','M⁻¹','s⁻¹','単位なし']},'Ka の単位は M⁻¹。'],
+[0,'Kd が小さいほど、結合はどうなる？',{c:['強い','弱い','速い','関係ない']},'Kd が小さい = くっついたものがなかなか離れない。'],
+[0,'抗体とタンパク質抗原の Kd の目安は？',{c:['nM（10⁻⁹ M）','mM（10⁻³ M）','fM（10⁻¹⁵ M）','M（1 M）']},'ストレプトアビジン‐ビオチンは fM、人工分子（シクロデキストリン）は mM。'],
+[0,'Kd が 1 nM のとき、結合定数 Ka は？',{c:['1×10⁹ M⁻¹','1×10⁻⁹ M⁻¹','1×10⁻⁹ M','1×10⁹ M']},'Ka = 1/Kd'],
+[0,'生体分子どうしの結合が強い理由として正しいのは？',{c:['弱い相互作用が広い接触面で多数はたらくから','すべて強い共有結合でつながっているから','必ず金属イオンが間を橋渡しするから','分子量が大きいほど必ず強くなるから']},'分子間力・静電的相互作用・疎水性相互作用。接触面積が大きいほど log Ka が大きい。'],
+[0,'1 fL は何 L？',{c:['10⁻¹⁵ L','10⁻¹² L','10⁻⁹ L','10⁻¹⁸ L']},'m → μ → n → p → f → a と 10³ ずつ小さくなる。'],
+[1,'抗体（IgG）で抗原と結合する部分をつくっているのは？',{c:['L鎖とH鎖それぞれ3か所の超可変領域','H鎖の定常領域（2本分）だけ','L鎖の可変領域の1か所だけ','2本のH鎖をつなぐヒンジ部分']},'超可変領域はループ構造。結合部位の形はくぼみ・溝・平面などさまざま。'],
+[1,'抗体の多様性（約10¹²種類）が生まれるしくみに「入らない」のは？',{c:['抗原の形に合わせて抗体が折れ曲がる','V・(D)・J 断片を無作為につなぐ','つなぐときにヌクレオチドが欠けたり入ったりする','複製のときに変異が入る']},'L鎖 316 通り × H鎖 8262 通り ≈ 260万通りの組み合わせに、つなぎ目の変化と変異が加わる。'],
+[1,'H鎖の遺伝子だけで使われる断片は？',{c:['D 断片','V 断片','J 断片','C 断片']},'L鎖は V と J、H鎖は V・D・J をつなぐ。'],
+[1,'抗体と酵素の、相手を見分けるしくみのちがいは？',{c:['酵素は結合後に反応させ、抗体は主に結合して見分ける','抗体だけが相手と共有結合して見分ける','酵素は形ではなく電荷だけで相手を見分ける','抗体は相手と反応したあとすぐに離れる']},'どちらも形・電荷・疎水性の相補性で相手を選ぶ点は同じ。'],
+[2,'イムノクロマトで、1次抗体の標識に使うものは？',{c:['金コロイド','蛍光色素','放射性同位体','酵素']},'約60 nm の金コロイド。色が濃く目で見える。'],
+[2,'イムノクロマトの判定部で、赤い線ができるしくみは？',{c:['固定した2次抗体が抗原をつかんでサンドイッチになる','固定した抗原が金コロイド標識1次抗体をつかむ','金コロイドだけが膜の決まった場所に吸着する','抗原が膜と直接反応して赤い色に変わる']},'2次抗体は1次抗体とは別の場所で抗原に結合する。'],
+[2,'イムノクロマトのリファレンス（コントロール）部の抗体がつかむのは？',{c:['1次抗体（標識抗体）','抗原（検出したい物質）','2次抗体（判定部の抗体）','金コロイド粒子だけ']},'標識抗体が膜を流れたことの確認。検体を十分に採れたかまでは保証しない。'],
+[2,'ELISA で信号が増幅されるしくみは？',{c:['酵素が基質をたくさんの蛍光分子に変える','抗体1個がたくさんの抗原にくっつく','抗原そのものが強い蛍光を出して光る','金コロイドが集まって濃い色になる']},'イムノクロマトより ELISA が高感度なのはこのため。'],
+[2,'サンドイッチ ELISA で、1次抗体に直接酵素をつけない理由は？',{a:'1次抗体は抗原がなくてもプレートに固定されて存在するので、そこに酵素をつけても抗原の有無を区別できないから。抗原に別の場所で結合する酵素標識2次抗体を使えば、抗原を捕まえたときだけ酵素が残る'},''],
+[2,'従来の ELISA の検出感度の目安は？',{c:['1〜10 pM','1〜10 mM','1〜10 aM','1〜10 zM']},'ウイルス感染初期の 10〜100 aM には足りない。'],
+[2,'High-dose hook effect で起こることは？',{c:['抗原が多すぎて信号が下がり、濃度を低く見積もる','抗原が少なすぎて信号が出ず、陰性と判定する','抗体が多すぎて信号が上がり、高く見積もる','温度が高すぎて抗体が壊れ、信号が消える']},'1次抗体と2次抗体が別々の抗原にくっつき、サンドイッチができない。'],
+[2,'High-dose hook effect が起きているかを確かめる方法は？',{c:['段階希釈して、薄めると信号が上がるか見る','試料を濃縮して、信号が上がるか見る','抗体の量を半分にして、信号を比べる','測定時間を短くして、信号を比べる']},'ふつうは薄めると信号が下がる。'],
+[2,'High-dose hook effect が頭打ちではなく「低下」になる理由は？',{a:'抗原が過剰だと固定化抗体と検出抗体が別々の抗原に結合してサンドイッチ複合体ができにくくなり、検出抗体が洗浄で流れてしまうから'},''],
+[2,'患者血清中の異好抗体などが1次抗体と2次抗体を橋渡しすると何が起こる？',{c:['偽陽性','偽陰性','フック効果','信号の飽和']},'ブロッキング剤、別の抗体ペア、希釈直線性の確認、別法での再測定で評価する。'],
+[3,'酵素1分子（10反応/s）で生成物を 1 μM にするのにかかる時間は、1 mL ならどれくらい？',{c:['約190万年','約60秒','約1年','約1日間']},'6×10¹⁴ 個が必要 → 6×10¹³ 秒。'],
+[3,'同じ酵素で、反応容器が 1 fL なら 1 μM になるまでの時間は？',{c:['約60秒','約0.06秒','約190万年','約6時間']},'1×10⁻⁶ × 1×10⁻¹⁵ × 6×10²³ = 600 個 → 600 ÷ 10 = 60 秒。'],
+[3,'デジタル ELISA で、反応の「前」に小部屋に分ける理由は？',{c:['反応後では生成物がすでに薄まっているから','反応前のほうが酵素が安定だから','分けると抗体が増えるから','反応後は小部屋に入らないから']},'1個の酵素が作った生成物を小さな体積に閉じ込めて、濃度を局所的に上げる。'],
+[3,'デジタル ELISA の「デジタル」とは何をすること？',{c:['光った小部屋を 0/1 で数える','蛍光の強さを細かく測る','コンピュータで抗体を設計する','電気信号で検出する']},'明るさが少しちがっても、閾値を超えた部屋を陽性として数える。'],
+[3,'デジタル ELISA で PSA を測ったときの検出限界は？',{c:['2 aM','9 pM','2 fM','2 nM']},'従来の ELISA（9 pM）の約100万倍の感度。'],
+[3,'デジタル ELISA の検出限界を実際に決めている主な原因は？',{c:['酵素標識2次抗体の非特異的吸着','蛍光色素がだんだん退色すること','カメラの解像度が足りないこと','ビーズの大きさがばらつくこと']},'抗原が 0 M でも光る部屋が出るのはこのため。'],
+[3,'ストレプトアビジン‐ビオチン（Kd ≈ fM）で評価した理想的な検出限界は？',{c:['10 zM（1 mL に約6分子）','2 aM（1 mL に約120万分子）','10 fM（1 mL に約600万分子）','1 pM（1 mL に約6億分子）']},''],
+[3,'反応容器の数 N を増やすと、陽性率のばらつきはどうなる？',{c:['SD/√N に小さくなる','N 倍に大きくなる','変わらない','SD/N² に小さくなる']},'100万個で 2 aM、10万個で 13 aM、8600個で 37 aM。平均値の標準偏差と同じ考え方。'],
+[3,'陽性の小部屋が多すぎて飽和したときはどうする？',{c:['試料を希釈する','容器を大きくする','閾値を下げる','抗体を増やす']},''],
+[3,'「検出が速くなる」ことと「検出限界が下がる」ことの関係は？',{c:['同じではない','まったく同じ','速いほど必ず限界も下がる','逆の関係']},'検出限界は非特異吸着、背景のばらつき、測定時間、反応効率、部屋の数にも左右される。'],
+[3,'デジタル ELISA で検出できるようになると期待される用途に「入らない」のは？',{c:['高濃度の血糖値の測定','感染のごく初期の診断','がん摘出後の再発の検出','尿や唾液での検査']},'低濃度のバイオマーカーが得意。']
+]});
+
+// ===== 10/13 溶媒抽出・クロマトグラフィーの原理 =====
+L({id:'1013',date:'10/13',title:'溶媒抽出・クロマトグラフィーの原理',short:'溶媒抽出・クロマト原理',
+ch:[
+{t:'溶媒抽出の基本',html:`
+<h2>溶媒抽出：水と油で分ける</h2>
+<p class="lead">混ざり合わない2つの液体（ふつうは水と有機溶媒）を<b>分液漏斗</b>でよく振り、目的の成分を片方へ移して分ける。分子は2つの相を行き来して、やがて<b>平衡</b>になる。</p>
+<h3>分配比 D：どっちにどれだけ</h3>
+<div class="formula">D = C_A,org / C_A<small>有機相の濃度 ÷ 水相の濃度。大きいほど有機相に抽出されやすい</small></div>
+<p>同じ物質が相の中でいくつかの形（HA と A⁻ など）をとるときは、<b>それぞれの相のすべての形の濃度の和</b>で比をとる。</p>
+<h3>抽出率 %E：全体の何%が有機相へ行ったか</h3>
+<div class="formula">%E = 100 × C_org V_org / (C_org V_org + C V) = 100 × D / (D + V/V_org)<small>V_org：有機相の体積、V：水相の体積</small></div>
+<h3>分離係数 α：2つの物質をどれだけ分けられるか</h3>
+<div class="formula">α = D_A / D_B（≥ 1）<small>D の大きいほうを分子にする。α = 1 なら分けられない</small></div>
+<h3>授業の問題</h3>
+<p>問題1：体積が同じとき、抽出率 1% と 99% の D は？</p>
+<div class="formula">1%：D = 1/99 ≈ 0.01　　99%：D = 99/1 ≈ 1×10²</div>
+<p>問題2：A の抽出率 99%、B が 1% のときの α は？</p>
+<div class="formula">α = 99 / (1/99) = 9801 ≈ 1×10⁴</div>
+<div class="note">D が 10⁴ 倍ちがってようやく「ほぼ全部抽出」と「ほぼ残る」に分かれる。きれいに分けるのは意外と大変。</div>
+<p class="slide">対応スライド：「溶媒抽出」〜「問題2」</p>`},
+
+{t:'pHと抽出',html:`
+<h2>分配定数 KD と pH の効き方</h2>
+<p class="lead">分配比 D は全部の形をまとめた比。一方、<b>分配定数 KD</b> は<b>同じ化学種どうし</b>の分配平衡の定数。</p>
+<div class="formula">KD = [HA]_org / [HA]<small>水相で解離した A⁻ は式に入らない（弱塩基 B なら HB⁺ は入らない）</small></div>
+<h3>弱酸 HA の分配比</h3>
+<p>有機相に移れるのは電荷のない HA だけ。水相では HA ⇄ H⁺ + A⁻ の平衡もある。</p>
+<div class="formula">D = [HA]_org / ([HA] + [A⁻]) = KD / (1 + Ka/[H⁺])</div>
+<div class="duo">
+<div><strong>[H⁺] ≫ Ka（酸性）</strong><span>D ≈ KD</span><span>ほとんど HA のまま → <b>有機相へ抽出されやすい</b></span></div>
+<div><strong>[H⁺] ≪ Ka（塩基性）</strong><span>D ≈ [H⁺]KD/Ka</span><span>A⁻ になって<b>水相に残る</b></span></div>
+</div>
+<div class="formula">塩基性側：log D ≈ −pH + log KD + pKa<small>log D と pH のグラフは傾き −1 の直線。[H⁺] = Ka（pH = pKa）で HA と A⁻ が半々</small></div>
+<div class="note">弱塩基（ピリジンなど）は逆。<b>酸性で HB⁺ になって水相に残り</b>、塩基性で抽出される（グラフの傾きは +1）。</div>
+<p class="slide">対応スライド：「分配定数 KD」「分配比 D は水相の pH に依存する」</p>`},
+
+{t:'金属イオンの抽出',html:`
+<h2>金属イオンを有機相へ連れていく</h2>
+<p class="lead">金属イオンは水分子をまとい（水和）、電荷も持っているので、そのままでは有機相に入れない。<b>抽出剤</b>で</p>
+<ol><li>錯体を作って<b>配位水を外す</b>（脱水和）</li><li>金属イオンの<b>電荷を中和する</b></li></ol>
+<h3>抽出剤の4分類</h3>
+<div class="defs">
+<div><span class="k">酸性キレート</span><span>HA（解離して A⁻）。脱水和＋電荷中和。Htta（2-テノイルトリフルオロアセトン）、8-キノリノール（オキシン）、ジエチルジチオカルバミン酸</span></div>
+<div><span class="k">イオン会合</span><span>X⁻（Cl⁻、ClO₄⁻、ピクリン酸など）や C⁺（トリオクチルアミン、TOMA⁺、TPA⁺）。脱水和＋電荷中和</span></div>
+<div><span class="k">中性配位子</span><span>リン酸トリブチル（TBP）、18-クラウン-6、1,10-フェナントロリン。脱水和だけ</span></div>
+<div><span class="k">配位性溶媒</span><span>イソブチルメチルケトン、ジイソプロピルエーテル、酢酸ブチル、ブタノール。脱水和だけ</span></div>
+</div>
+<p>2種類の抽出剤を一緒に使うと抽出がよくなることがある（<b>協同効果</b>）。配位する原子でも分類できる：S,S（ジエチルジチオカルバミン酸）、N,O（オキシン）、N,N（ジメチルグリオキシム）、O,O（アセチルアセトン）、S,N（ジチゾン）。</p>
+<h3>抽出定数 Kex</h3>
+<div class="formula">Mⁿ⁺ + nHA_org ⇄ MAₙ,org + nH⁺</div>
+<div class="formula">Kex = [MAₙ]_org [H⁺]ⁿ / ([Mⁿ⁺][HA]_orgⁿ)</div>
+<div class="formula">log D = log Kex + n log[HA]_org + n pH<small>log D と pH のグラフの傾きは n（2価なら 2）。H⁺ が出てくる反応なので、pH が高いほど抽出されやすい</small></div>
+<h3>pH₁/₂：半分抽出される pH</h3>
+<div class="formula">pH₁/₂ = −(1/n) log Kex − log[HA]_org<small>体積が同じで抽出率 50% → D = 1 → log D = 0 とおく</small></div>
+<div class="tblwrap"><table class="tbl">
+<tr><th>0.1 M Htta</th><th>log Kex</th><th>pH₁/₂</th></tr>
+<tr><td>Cu²⁺</td><td>−0.94</td><td>1.47</td></tr>
+<tr><td>Zn²⁺</td><td>−5.69</td><td>3.85</td></tr>
+<tr><td>Cd²⁺</td><td>−8.00</td><td>5.00</td></tr>
+<tr><td>Ca²⁺</td><td>−9.20</td><td>5.60</td></tr>
+<tr><td>Sr²⁺</td><td>−10.50</td><td>6.25</td></tr>
+</table></div>
+<p>Cu²⁺ だけ pH₁/₂ が離れているので、<b>Cu²⁺ とほかの金属は pH を選べば分けやすい</b>。</p>
+<p class="slide">対応スライド：「抽出剤を用いた金属イオンの溶媒抽出」〜「pH1/2」</p>`},
+
+{t:'段理論とピーク',html:`
+<h2>クロマトグラフィーは「抽出のくり返し」</h2>
+<p class="lead">移動相と固定相のあいだの分配（溶媒抽出）を、小さな段ごとに何度もくり返すと考える（<b>段理論</b>）。<b>各段で平衡に達している</b>と仮定する。</p>
+<p>ペーパークロマト（固定相 固体・移動相 液体）も GC（固定相 液体・移動相 気体）も、見た目はちがうが原理は同じ。初期のツヴェットの実験は吸着剤を詰めたカラムだった。</p>
+<h3>二項分布 → ガウス分布</h3>
+<p>1回の分配で移動相にいる確率を Pm、固定相にいる確率を Ps = 1 − Pm とすると、n 回後に k 回移動相にいた確率は</p>
+<div class="formula">B(n, Pm) = ₙCₖ · Pmᵏ · Psⁿ⁻ᵏ（二項分布）</div>
+<ul>
+<li>1回の移動確率が小さいとき → <b>ポアソン分布</b>で近似</li>
+<li>平均の移動回数が十分大きいとき → <b>ガウス分布</b>で近似</li>
+</ul>
+<p>カラム出口（段数 N）では、各成分は保持時間を中心にしたガウス形のピークになる。ガウス分布の<b>中心 → 保持時間 tR</b>、<b>広がり σ → ピーク幅 W</b>。</p>
+<h3>理論段数 N</h3>
+<div class="formula">N = (保持時間)² / 分散 = (tR/σ)² = 16(tR/W)² = 5.545(tR/W₁/₂)²</div>
+<div class="formula">W = 4σ（ベースライン上の幅）　W₁/₂ = √(8 ln2) σ ≈ 2.35σ（半値幅）</div>
+<p class="slide">対応スライド：「クロマトグラフィーの原理（段理論）」〜「理論段数 N」</p>`},
+
+{t:'保持と分離',html:`
+<h2>保持係数・van Deemter・分離度</h2>
+<h3>保持係数 k</h3>
+<div class="formula">k = (tA − t₀)/t₀　⇔　tA = (1 + k)t₀<small>t₀：固定相にまったく分配されない物質（k = 0）の溶出時間</small></div>
+<p>k = 固定相にいる物質量 ÷ 移動相にいる物質量 = <b>分配比 D（分配定数 KD）× 固定相の体積/移動相の体積</b>。tR そのものとちがい、カラム長や流量の影響を除いた「保持の強さ」を比べられる。</p>
+<h3>van Deemter 式（速度論）</h3>
+<div class="formula">H = A + B/ū + Cū<small>H：理論段高 = カラム長/理論段数、ū：移動相の平均線流速</small></div>
+<div class="defs">
+<div><span class="k">A</span><span><b>渦拡散（多流路拡散）</b>。粒を詰めた充填カラムで大きい</span></div>
+<div><span class="k">B/ū</span><span><b>軸方向の分子拡散</b>。拡散が遅い液体クロマト（LC）では小さい</span></div>
+<div><span class="k">Cū</span><span><b>移動相と固定相のあいだの物質移動</b>。拡散が遅い LC では大きい</span></div>
+</div>
+<div class="formula">最適流速 ū = √(B/C)　　H_min = A + 2√(BC)</div>
+<p>流速によって理論段数が変わるので、いちばんよく分かれる<b>最適な流速</b>を調べる必要がある。</p>
+<h3>分離係数 α と分離度 R</h3>
+<div class="formula">α = kB/kA（> 1）　　R = 2(tB − tA)/(WA + WB)</div>
+<p>R がおよそ 1.5 以上なら、2つのピークがベースラインまで分かれている目安。</p>
+<h3>Purnell の式</h3>
+<div class="formula">R = (√N/4) × ((α − 1)/α) × (kB/((kA + kB)/2 + 1))</div>
+<ul>
+<li>N を大きく → カラムを長くする</li>
+<li>α や k を大きく → 移動相・固定相を変える</li>
+</ul>
+<div class="note">グラフで比べると、<b>α を変えるのがいちばん効き</b>、次に N、k はあまり効かない。</div>
+<p class="slide">対応スライド：「保持係数」〜「RAB の N、α、k 依存性」</p>`},
+
+{t:'定性と定量',html:`
+<h2>クロマトグラフィーで「何が・どれだけ」</h2>
+<h3>定性分析（何か）</h3>
+<ul>
+<li><b>保持時間（容量）を使う</b>：固定相・移動相・流速・圧力・温度・カラム長などの条件が同じなら、成分ごとに決まる</li>
+<li><b>スペクトルを使う</b>：分けた成分を質量分析計や赤外分光計にかける（GC-MS など）</li>
+</ul>
+<h3>定量分析（どれだけ）</h3>
+<p>検出器の信号が成分量に比例するように使い、ピークの<b>面積</b>を測る（ざっくり 高さ h × 半値幅 d、実際は積分）。</p>
+<div class="defs">
+<div><span class="k">絶対検量線</span><span>純物質で「量 vs ピーク面積」の検量線を作る。装置に入れる試料量を<b>厳密に正確にする必要があり難しい</b></span></div>
+<div><span class="k">内標準法</span><span>試料とピーク位置がちがう<b>内標準物質</b>を既知量加え、面積比 Ax/As と混合比 Mx/Ms の検量線を作る。<b>試料導入量の誤差を打ち消せる</b></span></div>
+<div><span class="k">追加法</span><span><b>被検成分追加法</b>。適切な内標準物質がないときに、目的成分 A そのものを既知量 ΔMA 足して、ほかの成分 B との面積比の変化から求める</span></div>
+</div>
+<div class="formula">X_A(%) = ΔMA / [((A₂/B₂)(B₁/A₁) − 1) M] × 100<small>M：試料の量。A₁・B₁ は足す前、A₂・B₂ は足した後の面積</small></div>
+<p class="slide">対応スライド：「クロマトグラフィーによる定性分析」〜「被検成分追加法」</p>`}
+],
+q:[
+[0,'分配比 D の定義は？',{c:['有機相の濃度 ÷ 水相の濃度','水相の濃度 ÷ 有機相の濃度','有機相の物質量 ÷ 全物質量','有機相の体積 ÷ 水相の体積']},'D が大きいほど有機相に抽出されやすい。'],
+[0,'物質が相の中で HA と A⁻ のように複数の形をとるとき、D はどう計算する？',{c:['各相のすべての形の濃度の和で比をとる','電荷のない形だけで比をとる','いちばん多い形だけで比をとる','水相の形だけで計算する']},'D = ([A₁]org + [A₂]org + …) / ([A₁] + [A₂] + …)'],
+[0,'抽出率 %E を D と体積で表すと？',{c:['100 × D / (D + V/V_org)','100 × D / (1 + D)','100 × V_org / (V + V_org)','100 × D × V/V_org']},'V：水相、V_org：有機相の体積。体積が同じなら 100 × D/(D + 1)。'],
+[0,'水相と有機相の体積が同じで、抽出率が 99% のときの D は？（有効数字1桁）',{c:['1×10²','0.01','99%','1×10⁴']},'D = 99/1 = 99 ≈ 1×10²。抽出率 1% なら D = 1/99 ≈ 0.01。'],
+[0,'物質 A の抽出率 99%、B の抽出率 1%（体積同じ）のときの分離係数 α は？',{c:['1×10⁴','99','1×10²','98']},'α = 99/(1/99) = 9801 ≈ 1×10⁴'],
+[0,'分離係数 α = 1 のときは？',{c:['分離できない','完全に分離できる','A だけ抽出される','計算できない']},'α = D_A/D_B（大きいほうが分子）なので α ≥ 1。'],
+[0,'体積が同じで D = 10 のとき、抽出率は？',{c:['約 91%','約 99%','約 50%','約 10%']},'100 × 10/(10 + 1) = 90.9%'],
+[1,'分配定数 KD の説明として正しいのは？',{c:['同じ化学種どうしの分配平衡の定数','すべての形の濃度の和の比','pH によって大きく変わる比','2つの物質の分配比の比']},'弱酸 HA なら KD = [HA]org/[HA]。A⁻ は式に入らない。'],
+[1,'弱酸 HA の分配比 D を KD と Ka で表すと？',{c:['KD / (1 + Ka/[H⁺])','KD × (1 + Ka/[H⁺])','KD / (1 + [H⁺]/Ka)','Ka / (1 + KD[H⁺])']},''],
+[1,'弱酸を有機相に抽出したいとき、水相の pH は？',{c:['酸性にする','塩基性にする','中性にする','関係ない']},'酸性では HA のまま → D ≈ KD。塩基性では A⁻ になって水相に残る。'],
+[1,'弱酸で [H⁺] ≪ Ka のとき、log D と pH の関係は？',{c:['log D ≈ −pH + log KD + pKa（傾き −1）','log D ≈ pH + log KD（傾き +1）','log D ≈ log KD（一定）','log D ≈ −2pH（傾き −2）']},''],
+[1,'弱塩基（ピリジンなど）の抽出率が下がるのはどんなとき？',{c:['酸性のとき','塩基性のとき','中性のとき','pH に関係なく一定']},'酸性では HB⁺ になって水相に残る。log D-pH の傾きは +1。'],
+[1,'弱酸で pH = pKa のときの水相の状態は？',{c:['HA と A⁻ が半々','ほとんど HA','ほとんど A⁻','HA が有機相にすべて移る']},'[H⁺] = Ka'],
+[2,'金属イオンを有機相に抽出するとき、抽出剤の役割は？',{c:['配位水を外し、電荷を中和する','金属イオンを還元する','有機溶媒を水に溶かす','金属イオンを沈殿させる']},'脱水和＋電荷中和。'],
+[2,'リン酸トリブチル（TBP）や 18-クラウン-6 は、抽出剤のどの分類？',{c:['中性配位子','酸性キレート試薬','イオン会合試薬','配位性溶媒']},'中性配位子は脱水和だけを担う。'],
+[2,'8-キノリノール（オキシン）や Htta は、抽出剤のどの分類？',{c:['酸性キレート試薬','中性配位子','イオン会合試薬','配位性溶媒']},'HA が解離して A⁻ になり、脱水和と電荷中和の両方をする。'],
+[2,'イソブチルメチルケトンやブタノールのような抽出剤の分類は？',{c:['配位性溶媒','酸性キレート試薬','イオン会合試薬','中性配位子']},''],
+[2,'2種類の抽出剤を同時に使うと抽出がよくなることを何という？',{c:['協同効果','共沈','塩析','マスキング']},''],
+[2,'酸性キレート試薬 HA による金属の抽出で、log D と pH の関係は？',{c:['log D = log Kex + n log[HA]org + n pH','log D = log Kex − n pH','log D = n log Kex + pH','log D = log Kex + log[HA]org − pH']},'H⁺ が n 個出る反応なので、pH が上がると抽出されやすい。'],
+[2,'2価の金属イオンを酸性キレート試薬で抽出したとき、log D-pH のグラフの傾きは？',{c:['2','1','−2','0.5']},'傾きは金属イオンの電荷 n。'],
+[2,'pH₁/₂ を求める式は？',{c:['−(1/n) log Kex − log[HA]org','(1/n) log Kex + log[HA]org','−n log Kex − log[HA]org','log Kex / n']},'体積が同じで抽出率50% → D = 1 → log D = 0 とおく。'],
+[2,'0.1 M Htta で Cu²⁺（log Kex = −0.94）の pH₁/₂ は？',{c:['1.47','0.47','2.94','0.94']},'−(1/2)(−0.94) − log 0.1 = 0.47 + 1 = 1.47'],
+[2,'Htta による抽出で、Cu²⁺ がほかの金属から分けやすい理由は？',{c:['pH₁/₂ がほかの金属から大きく離れているから','Cu²⁺ だけがもともと有機相によく溶けるから','Cu²⁺ だけは電荷が1なので中和しやすいから','Cu²⁺ は錯体を作らず水相に残り続けるから']},'Cu 1.47、Zn 3.85、Cd 5.00、Ca 5.60、Sr 6.25'],
+[3,'クロマトグラフィーの段理論の仮定は？',{c:['各段で平衡に達している','各段で反応が起こる','移動相が止まっている','固定相も移動する']},'溶媒抽出（向流分配）を何度もくり返すのと同じとみなす。'],
+[3,'n 回分配したあと、k 回だけ移動相にいた確率が従う分布は？',{c:['二項分布','正規分布','一様分布','指数分布']},'B(n, Pm) = ₙCₖ Pmᵏ Psⁿ⁻ᵏ'],
+[3,'1回の移動確率が小さいとき、二項分布はどの分布で近似できる？',{c:['ポアソン分布','ガウス分布','一様分布','対数正規分布']},'平均の移動回数が十分大きければガウス分布。'],
+[3,'ガウス分布の中心と広がりは、クロマトグラムの何に対応する？',{c:['中心 → 保持時間、広がり → ピーク幅','中心 → ピーク高さ、広がり → 保持時間','中心 → ピーク面積、広がり → 高さ','中心 → t₀、広がり → 分離度']},''],
+[3,'半値幅 W₁/₂ を使った理論段数 N の式は？',{c:['N = 5.545 (tR/W₁/₂)²','N = 16 (tR/W₁/₂)²','N = (tR/W₁/₂)²','N = 2.35 (tR/W₁/₂)²']},'W₁/₂ = √(8 ln2)σ ≈ 2.355σ なので (2.355)² = 5.545。'],
+[3,'理論段数 N の定義として正しいのは？',{c:['(保持時間)² / 分布の分散','保持時間 / ピーク幅','カラム長 / 理論段高の2乗','ピーク高さ / ピーク幅']},'N = (tR/σ)²'],
+[4,'保持係数 k は、物質量で考えると何と何の比？',{c:['固定相にいる量 ÷ 移動相にいる量','移動相にいる量 ÷ 固定相にいる量','固定相の体積 ÷ 移動相の体積','保持時間 ÷ カラム長']},'k = D（または KD）× 固定相の体積/移動相の体積'],
+[4,'t₀ = 1.0 min、k = 4.0 の成分の保持時間 tA は？',{c:['5.0 min','4.0 min','3.0 min','0.25 min']},'tA = (1 + k)t₀'],
+[4,'van Deemter 式で、拡散の遅い液体クロマト（LC）で影響が小さい項は？',{c:['B/ū（軸方向の分子拡散）','A（渦・多流路拡散）','Cū（相間の物質移動）','どれも同じくらい効く']},'逆に Cū は LC で大きい。'],
+[4,'van Deemter 式で、理論段高 H が最小になる流速は？',{c:['√(B/C)','√(C/B)','B/C','A + 2√(BC)']},'H_min = A + 2√(BC)'],
+[4,'充填カラムで影響が大きい van Deemter の項は？',{c:['A（渦拡散）','B/ū（分子拡散）','Cū（物質移動）','どれも小さい']},'粒のあいだを通る道筋がいろいろあって到着がばらつく。'],
+[4,'Purnell 式で、分離度 R を上げるのにいちばん効くのは？',{c:['α を大きくする','N を大きくする','k を大きくする','流速を上げる']},'α は移動相・固定相を変えて大きくする。N はカラムを長くする。'],
+[4,'分離度 R がいくつ以上あれば、ベースライン分離の目安？',{c:['約 1.5','約 0.5','約 10','約 100']},''],
+[5,'クロマトグラフィーで成分を同定する方法として講義で挙げたのは？',{c:['保持時間の比較とスペクトル（GC-MS など）','ピーク面積の大きさを標準と比べることだけ','ピーク高さの大きさを標準と比べることだけ','検出器の種類を次々に変えて比べること']},'保持時間は条件が同じなら成分ごとに決まる。'],
+[5,'絶対検量線法の難しい点は？',{c:['装置に入れる試料量を厳密に正確にする必要がある','目的成分の純物質がまったく手に入らないこと','試料とピーク位置がちがう内標準物質が見つからない','クロマトグラムのピーク面積がそもそも測れないこと']},''],
+[5,'内標準法の利点は？',{c:['試料導入量の誤差を打ち消せる','検量線がいらない','どの成分も同じ感度になる','内標準物質と試料のピークが重なってもよい']},'内標準物質は試料とピーク位置がちがうものを選ぶ。'],
+[5,'被検成分追加法を使うのはどんなとき？',{c:['適切な内標準物質が得られないとき','試料がとても多いとき','純物質がまったくないとき','検出器が非線形なとき']},''],
+[5,'ピーク面積をざっくり見積もる方法は？',{c:['高さ × 半値幅','高さ × ベースライン幅 × 2','保持時間 × 高さ','高さ ÷ 半値幅']},'実際はピークを積分する。']
+]});
+
+// ===== 10/16 クロマトグラフィーの具体例 =====
+const FIG_POOL=`<figure class="fig"><svg viewBox="0 0 320 128" role="img" aria-label="移動相と固定相の模式図">
+<rect x="8" y="14" width="304" height="78" rx="8" fill="var(--surface)" stroke="var(--line)"/>
+<rect x="9" y="70" width="302" height="21" rx="0" fill="var(--t-gc)" opacity=".22"/>
+<text x="16" y="30" ${T}>移動相（流れていく）→</text>
+<text x="16" y="85" ${T}>固定相（止まっている）</text>
+<path d="M20 46 H262" stroke="var(--t-ion)" stroke-width="1.5" stroke-dasharray="4 4" fill="none"/>
+<circle cx="270" cy="46" r="7" fill="var(--t-ion)"/><text x="266" y="50" font-size="9" fill="var(--surface)" font-weight="700">A</text>
+<path d="M20 52 L42 52 L54 78 L74 78 L84 54 L100 54 L110 80 L132 80 L140 56 L148 56" stroke="var(--t-calc)" stroke-width="1.5" stroke-dasharray="4 4" fill="none"/>
+<circle cx="156" cy="56" r="7" fill="var(--t-calc)"/><text x="152" y="60" font-size="9" fill="var(--surface)" font-weight="700">B</text>
+<text x="8" y="112" ${T}>同じ時間で比べると、固定相に寄り道する B のほうが遅れる</text>
+</svg><figcaption>A は固定相と仲が悪くて素通り、B は固定相と仲が良くて何度も捕まる。</figcaption></figure>`;
+const FIG_CHROM=(()=>{const base=104;const d=gauss([{x:44,h:70,s:3.5},{x:150,h:58,s:8},{x:252,h:42,s:13}],320,base);
+return `<figure class="fig"><svg viewBox="0 0 320 150" role="img" aria-label="クロマトグラムの読み方">
+<path d="M10 ${base} H314" stroke="var(--line)"/>
+<path d="${d}" fill="none" stroke="var(--accent)" stroke-width="2"/>
+<g stroke="var(--muted)" stroke-dasharray="3 3"><path d="M44 34 V${base}"/><path d="M150 46 V${base}"/><path d="M252 62 V${base}"/></g>
+<text x="56" y="44" ${T}>素通り成分</text><text x="160" y="52" ${T}>成分A</text><text x="268" y="62" ${T}>成分B</text>
+<path d="M226 ${base+8} H278" stroke="var(--t-ion)" stroke-width="1.5"/><path d="M226 ${base+4} V${base+12} M278 ${base+4} V${base+12}" stroke="var(--t-ion)"/>
+<text x="245" y="${base+24}" font-size="11" fill="var(--t-ion)" font-family="IBM Plex Mono, monospace">W</text>
+<text x="38" y="${base+16}" font-size="11" fill="var(--fg)" font-family="IBM Plex Mono, monospace">t₀</text>
+<text x="144" y="${base+16}" font-size="11" fill="var(--fg)" font-family="IBM Plex Mono, monospace">tA</text>
+<text x="10" y="${base+40}" ${T}>注入</text><text x="262" y="${base+40}" ${T}>時間 →</text>
+</svg><figcaption>山の位置（時間）で「何か」、山の面積で「どれだけか」が分かる。</figcaption></figure>`})();
+L({id:'1016',date:'10/16',title:'クロマトグラフィーの具体例',short:'クロマト具体例',
+ch:[
+{t:'全体像',html:`
+<h2>クロマトグラフィーは「分ける」技術</h2>
+<p class="lead">混ざった試料を成分ごとに<b>分けて</b>、何が・どれだけ入っているかを調べる方法。今日の授業は全部この1つの仕組みの使い回し。</p>
+<h3>仕組みは1つだけ</h3>
+<p>管や紙の中に、<b>流れるもの（移動相）</b>と<b>止まっているもの（固定相）</b>がある。成分は2つの間を行ったり来たりしながら進む。固定相に長くいる成分ほど遅れて出てくる。</p>
+${FIG_POOL}
+<h3>種類の違いは「何で流すか」</h3>
+<div class="defs">
+<div><span class="k">GC</span><span>移動相が<b>気体</b>。試料を蒸発させて流す（ガスクロマトグラフィー）</span></div>
+<div><span class="k">HPLC</span><span>移動相が<b>液体</b>。ポンプで押し流す（高速液体クロマトグラフィー）</span></div>
+<div><span class="k">TLC</span><span>板（や紙）の上を溶媒がしみ上がる（薄層クロマトグラフィー）</span></div>
+</div>
+<p>固定相に「どう引っかかるか」も種類がある。固体なら吸着・イオン交換・疎水性相互作用、液体なら溶けやすさ（分配係数）。</p>
+<div class="note">歴史小ネタ：ロシアの植物学者ツヴェットが葉の色素を分けたのが最初。chroma（色）＋ graphos（記録）。</div>
+<p class="slide">対応スライド：「歴史は古い」〜「クロマトグラフィーの分類」</p>`},
+
+{t:'グラフの読み方',html:`
+<h2>クロマトグラムの読み方と用語</h2>
+<p class="lead">カラムの出口にセンサー（検出器）があって、成分が来るたびに山が出る。この山のグラフが<b>クロマトグラム</b>。</p>
+${FIG_CHROM}
+<h3>まずこの5つだけ</h3>
+<div class="defs">
+<div><span class="k">t₀</span><span>固定相に全く引っかからない成分が出てくる時間。いわば「素通りタイム」</span></div>
+<div><span class="k">tR</span><span><b>保持時間</b>。成分が出てくる時間。成分ごとに違うので「何か」の手がかりになる</span></div>
+<div><span class="k">k</span><span><b>保持係数</b> = (tR − t₀)/t₀。素通りの何倍ぶん寄り道したか。目安は 1〜10</span></div>
+<div><span class="k">N</span><span><b>理論段数</b> = (tR/σ)² = 16(tR/W)²。山の鋭さ。大きいほど鋭くてよく分かれる</span></div>
+<div><span class="k">R</span><span><b>分離度</b> = 2(tB − tA)/(WA + WB)。隣の山とどれだけ離れているか</span></div>
+</div>
+<ul>
+<li>山の形はガウス分布になる。成分が移動相と固定相を何度も行き来するから（二項分布 → ポアソン分布 → ガウス分布と近似していく流れだけ言えればOK）</li>
+<li>山の基線幅は <b>W = 4σ</b>。同じ N なら σ = tR/√N なので、遅く出る山ほど幅が広い</li>
+<li><b>α = kB/kA</b>（分離係数）は2成分の保持の差。分離を良くしたいときは、まず α（固定相・移動相・pH）、次に k、最後に N を増やす。N は √N でしか効かないので、カラムを4倍にしても R は2倍</li>
+</ul>
+<p>カラム長 L との関係は <span class="formula" style="display:inline;padding:2px 6px">H = L/N</span>。H（理論段高）は小さいほど高性能。</p>
+<h3>山が広がる3つの理由（van Deemter式）</h3>
+<div class="formula">H = A + B/ū + Cū<small>ū は移動相の流速</small></div>
+<ul>
+<li><b>A</b>：通り道が何通りもあって到着がばらつく（粒を詰めたカラムで起きる）</li>
+<li><b>B/ū</b>：前後にじわじわ拡散する。ゆっくり流すほど効く</li>
+<li><b>Cū</b>：固定相との行き来が流れに追いつかない。速く流すほど効く</li>
+</ul>
+<div class="note">保持時間は「平衡（どっちが好きか）」で決まり、山の広がりは「速さ（行き来の遅れ）」で決まる。この区別がQ&Aでも強調されてた。</div>
+<p class="slide">対応スライド：「保持係数」「充填カラムとキャピラリーカラム」（式の多くは前回の内容）</p>`},
+
+{t:'GC',html:`
+<h2>GC：試料を気体にして流す</h2>
+<h3>装置の流れ</h3>
+<div class="flow">
+<div><b>キャリアガス</b>　ヘリウム・窒素・アルゴンなど反応しにくい気体</div>
+<div><b>注入口</b>　試料を加熱して気化（450 °C くらいまで）</div>
+<div><b>カラム</b>　オーブンの中の細長い管。ここで分かれる</div>
+<div><b>検出器</b>　出てきた成分を感知して山を描く</div>
+</div>
+<h3>カラムは2種類</h3>
+<div class="duo">
+<div><strong>充填カラム</strong><span>管に粒を詰める</span><span>長さ 1–10 m</span><span>〜1000 段/m</span><span>一度に多く流せる</span></div>
+<div><strong>キャピラリー</strong><span>中空の細い管の内壁に液体</span><span>長さ 15–100 m</span><span>数10万〜100万段</span><span>流せる量は少ない</span></div>
+</div>
+<p>キャピラリーは中空なので A 項がなく、細いので C 項も小さく、長いので N が大きい。河川水の分析では充填 118 ピークに対しキャピラリーは <b>490 ピーク</b>まで見分けた。</p>
+<h3>固定相は「似たもの同士」</h3>
+<p>無極性の<b>ジメチルポリシロキサン</b>は炭化水素向け、高極性の<b>ポリエチレングリコール（Carbowax）</b>はアルコールなど向け。固定相の液体は、シリカ表面をシリル化したうえで化学結合させて流れ出ないようにする。</p>
+<h3>温度で出てくる速さが変わる</h3>
+<div class="formula">ln k = ΔHv/RT − ln γ + C<small>ΔHv：蒸発熱（大きい＝気体になりにくい）／γ：活量係数（小さい＝固定相と仲良し）</small></div>
+<ul>
+<li>気体になりにくい・固定相と仲良し → <b>遅く出る</b></li>
+<li>温度を上げる → <b>早く出る</b></li>
+<li>炭素数が増える → 遅く出る（ln をとるとほぼ直線）</li>
+</ul>
+<p><b>昇温法</b>：温度一定だと後ろの成分ほど遅く広がるので、測りながら温度を上げて全部をシャープに出す。</p>
+<h3>保持指標：出てくる位置の「住所」</h3>
+<p>直鎖アルカンを物差しにして、n-ヘプタン = 700、n-オクタン = 800 のように番号をふる。その間に出たら 7xx。どの装置で測っても比べやすいので、<b>成分の同定</b>に使う。計算は最後の章で。</p>
+<p class="slide">対応スライド：「ガスクロマトグラフィー、GC」〜「昇温法」</p>`},
+
+{t:'GCの検出器',html:`
+<h2>GCの検出器：出口のセンサー</h2>
+<p class="lead">「何が来たら反応するか」がそれぞれ違う。試料に合わせて選ぶ。</p>
+<div class="defs">
+<div><span class="k">TCD</span><span><b>熱伝導度検出器</b>。ガスの熱の伝わりやすさの変化を電気抵抗で見る。何でも測れるが感度は低い。試料を壊さない</span></div>
+<div><span class="k">FID</span><span><b>水素炎イオン化</b>。炎で燃やして出るイオンの電流を測る。<b>有機物</b>に強い定番</span></div>
+<div><span class="k">ECD</span><span><b>電子捕獲</b>。⁶³Ni の β 線で作った電子の流れが減るのを見る。<b>ハロゲン</b>に超高感度</span></div>
+<div><span class="k">FPD</span><span><b>炎光光度</b>。水素炎の中で光る<b>硫黄・リン</b>を見る</span></div>
+<div><span class="k">NPD</span><span>熱イオン化（TID）。<b>窒素・リン</b>に高感度</span></div>
+<div><span class="k">MS</span><span><b>質量分析計</b>。分子の重さ（m/z）まで分かるので、何なのか特定できる</span></div>
+</div>
+<h3>MSの2タイプ</h3>
+<div class="duo">
+<div><strong>四重極</strong><span>直流＋高周波の電場が「ふるい」になって、特定の m/z だけ通す</span></div>
+<div><strong>TOF（飛行時間）</strong><span>同じ電圧で加速すると軽いほど速い。v = √(2Vq/m)</span></div>
+</div>
+<h3>濃度型と質量型</h3>
+<p><b>濃度型（C）</b>：TCD・ECD。検出器の中の濃度に反応し、試料を壊さないものが多い。<br><b>質量型（M）</b>：FID・FPD・NPD・MS。入ってきた量に反応し、壊すものが多い。</p>
+<div class="note">覚え方：名前に「炎」が入る FID と FPD は燃やすから壊す、つまり質量型。</div>
+<p class="slide">対応スライド：「GCに用いられる検出器」4枚</p>`},
+
+{t:'HPLC',html:`
+<h2>HPLC：液体で押し流す</h2>
+<p class="lead">移動相が液体なので、蒸発させられないもの（熱に弱い・大きい分子）も分けられる。GCとの一番の違いは、<b>移動相の種類や配合も変えられる</b>こと。</p>
+<h3>4種類</h3>
+<ul><li>液-液（分配）</li><li>液-固（吸着）</li><li>イオン交換（次の章）</li><li>サイズ排除（次の章）</li></ul>
+<h3>順相と逆相</h3>
+<p>ルールは GC と同じで<b>固定相と似ている成分ほど遅く出る</b>。</p>
+<div class="duo">
+<div style="--c:var(--t-lc)"><strong>順相</strong><span>固定相の極性 ＞ 移動相</span><span>固定相：アミノ基・シアノ基・ジオール基など</span><span>→ 極性の低いものから出る</span></div>
+<div><strong>逆相</strong><span>固定相の極性 ＜ 移動相</span><span>固定相：C18（オクタデシル基）が代表</span><span>移動相は水＋アセトニトリル等</span><span>→ 極性の高いものから出る</span></div>
+</div>
+<h3>授業の問題2はこれ</h3>
+<p>トルエン（低）・アセトフェノン（中）・フェノール（高）を分けると</p>
+<div class="formula">順相：トルエン → アセトフェノン → フェノール<br>逆相：フェノール → アセトフェノン → トルエン</div>
+<h3>移動相の配合で調整する</h3>
+<p>逆相で有機溶媒（アセトニトリル）を多くしすぎると、全部すぐ出てきて山が重なる。水を増やしたりメタノールを混ぜたりすると分かれる。測りながら配合を変える方法が<b>グラディエント法</b>。</p>
+<h3>どの方法を選ぶか</h3>
+<ul>
+<li>分子量 ＞ 2000 → <b>サイズ排除</b></li>
+<li>水に溶ける・イオン性 → <b>イオン交換</b>（弱いイオン性なら逆相も可）</li>
+<li>水に溶けない・極性 → <b>順相</b></li>
+<li>水に溶けない・非極性 → <b>逆相</b></li>
+</ul>
+<p class="slide">対応スライド：「高速液体クロマトグラフィー」〜「分離法選択の目安」</p>`},
+
+{t:'イオン交換・SEC',html:`
+<h2>イオン交換とサイズ排除</h2>
+<h3>イオン交換：電気で引っかける</h3>
+<p>固定相に＋か−の電荷がついていて、<b>反対の電荷のイオン</b>を引き寄せる。</p>
+<div class="duo">
+<div><strong>陽イオン交換</strong><span>交換基が−</span><span>強酸性：スルホン酸基 −SO₃H</span><span>弱酸性：カルボキシ基 −COOH</span></div>
+<div><strong>陰イオン交換</strong><span>交換基が＋</span><span>強塩基性：第四級アンモニウム</span><span>弱塩基性：アミノ基</span></div>
+</div>
+<ul>
+<li><b>2価は1価より強くくっつく</b>。陰イオンなら F⁻ が最初、SO₄²⁻ が最後に出る</li>
+<li>イオンになっていない成分はくっつかない。弱酸なら pH ≥ pKa + 1.5 で約97%がイオン</li>
+</ul>
+<h3>イオンクロマトとサプレッサー</h3>
+<p>溶離液（NaOH など）のイオンが多すぎて、電気伝導度で試料が見えにくい。そこで出口に<b>サプレッサー</b>を置いて溶離液を水に変えて消し、試料のイオンだけを高感度で測る。</p>
+<h3>サイズ排除（SEC）：穴あきビーズのふるい</h3>
+<p>固定相は穴だらけのゲルの粒。小さい分子は穴の中に入り込んで遠回りするが、大きい分子は穴に入れず素通りする。だから<b>大きい順に出る</b>。</p>
+<div class="formula">問題3：300 kDa → 70 kDa → 1 kDa</div>
+<p>全く穴に入れない分子は K = 0（V₀で出る）、全部入れる分子は K = 1（Veで出る）。</p>
+<div class="note">電気泳動は逆。ゲルの網目を「くぐり抜ける」ので大きい DNA ほど遅い。ゲル濃度を上げると網目が細かくなってさらに遅くなる。</div>
+<p class="slide">対応スライド：「イオン交換クロマトグラフィー」〜「アガロース電気泳動の例」</p>`},
+
+{t:'HPLC検出器・TLC',html:`
+<h2>HPLCの検出器とTLC</h2>
+<h3>HPLCの検出器</h3>
+<div class="defs">
+<div><span class="k">UV</span><span><b>紫外可視吸収</b>。光をどれだけ吸うか。A = log(P₀/P) = abc（ランバート・ベール）。紫外線を吸う物質向け</span></div>
+<div><span class="k">蛍光</span><span>吸った光より<b>波長の長い光</b>を出す物質向け。薄ければ F ≈ 2.3φP₀abc で濃度に比例</span></div>
+<div><span class="k">RID</span><span><b>示差屈折率</b>。光の曲がり方の差（スネルの法則）。何でも測れるが温度に敏感で、グラディエント法はほぼ使えない</span></div>
+<div><span class="k">電気</span><span>電気化学検出器・電導度検出器。イオンや酸化還元する物質向け</span></div>
+</div>
+<h3>TLC（薄層クロマトグラフィー）</h3>
+<p>ガラス板にシリカゲルなどを塗り、下から溶媒を<b>毛細管現象</b>でしみ上がらせる。一定時間後に<b>どこまで進んだか</b>で分ける。</p>
+<div class="formula">Rf = 成分の移動距離 / 溶媒の先端の移動距離</div>
+<p>カラムは「距離を決めて時間を測る」、TLCは「時間を決めて距離を測る」。裏返しの関係なので</p>
+<div class="formula">Rf = t₀/tR = 1/(1 + k)</div>
+<p>見えない成分は、硫酸をかけて焦がす・発色試薬をかける・蛍光入りの板に紫外線を当てる、で見つける。</p>
+<p class="slide">対応スライド：「HPLCに用いられる検出器」〜「TLCにおけるRf値」</p>`},
+
+{t:'計算まとめ',html:`
+<h2>試験に出る計算</h2>
+<p class="lead">先生のQ&Aでは「丸暗記より定義と意味」「授業中の問題が自力で解ければ目安」とのこと。</p>
+<div class="formula">k = (tR − t₀)/t₀</div>
+<div class="formula">N = (tR/σ)² = 16(tR/W)²　　H = L/N</div>
+<div class="formula">R = 2(tB − tA)/(WA + WB)</div>
+<div class="formula">Rf = 1/(1 + k)</div>
+<div class="formula">I = 100N + 100n × (log t′X − log t′N)/(log t′N+n − log t′N)<small>t′ = t − t₀（補正保持時間）。N は低い側のアルカンの炭素数、n は2本の炭素数の差（隣同士なら1）</small></div>
+<h3>問題1を解いてみる</h3>
+<p>補正保持時間：n-ヘプタン 10.0 min、試料X 15.7 min、n-オクタン 20.0 min。</p>
+<ul>
+<li>ヘプタンは C7 なので 100N = 700、オクタンとの差は1なので n = 1</li>
+<li>log 15.7 − log 10.0 = log 1.57 = 0.196</li>
+<li>log 20.0 − log 10.0 = log 2 = 0.301</li>
+<li>I = 700 + 100 × 0.196/0.301 = 700 + 65.1</li>
+</ul>
+<div class="formula">I = 765</div>
+<div class="note">直線で比例配分すると 757 になって間違い。<b>log で内挿する</b>のがポイント。</div>
+<h3>被検成分追加法</h3>
+<p>A を既知量 ΔMA だけ足して、別成分 B との面積比がどれだけ増えたかから元の A の量を逆算する。</p>
+<div class="formula">mA = ΔMA / {(A₂/B₂)(B₁/A₁) − 1}</div>
+<p>B との比を使うのは、注入量のばらつきを打ち消すため。</p>`}
+],
+q:[
+[0,"クロマトグラフィーの語源は？",{"c":["chroma（色）＋ graphos（記録）","chronos（時間）＋ graphos（記録）","chroma（色）＋ logos（学問）","chromos（時間）＋ graphein（描く）"]},"ロシアの植物学者 Tswett が植物の葉の色素を分離したのが始まり（100年以上前）。"],
+[0,"GC と LC を分けているのは何？",{"c":["移動相が気体か液体か","固定相が気体か液体か","検出器の種類","カラムの長さ"]},"移動相が気体 → GC（固定相は固体 or 液体）\n移動相が液体 → LC（固定相は固体 or 液体）"],
+[0,"固定相が「固体」のときの分配の機構として講義で挙げていないのは？",{"c":["液体への溶解度・分配係数","表面への可逆的な吸着","電荷どうしのイオン交換","疎水性相互作用（疎水性の引き合い）"]},"固体：可逆的吸着・イオン交換・疎水性相互作用\n液体：液体への溶解度・分配係数"],
+[0,"ペーパークロマトと GC の関係として正しいのは？",{"c":["見た目は違うが原理は同じ。移動相と固定相の種類が違う","ペーパーは吸着、GC は沸点だけで分ける","GC は分配を使わない","ペーパーは時間、GC は距離で分ける"]},"ペーパー：固定相 固体（液体）／移動相 液体\nGC：固定相 液体／移動相 気体"],
+[6,"TLC・ペーパーと、カラム（GC・HPLC）の「測り方」の違いは？",{"a":"TLC：時間を一定にして移動距離を見る（Rf）\nカラム：距離（カラム長）を一定にして溶出までの時間（体積）を測る"},"だから TLC の Rf とカラムの保持係数 k は Rf = 1/(1+k) でつながる。"],
+[0,"物質ごとに移動速度が違う本当の理由は？",{"c":["固定相に存在する時間の割合が違うから","固定相との摩擦の大きさが違うから","分子の速さが質量で決まるから","移動相の流速が成分ごとに違うから"]},"平衡分配が保持時間を決める。固定相⇄移動相の移行に有限時間がかかることは、主にピークの広がり（van Deemter の C 項）に出る。"],
+[1,"繰り返し分配でピークがガウス形になる流れは？",{"a":"二択の繰り返し → 二項分布\n→（条件下で）ポアソン分布で近似\n→ 平均回数が大きいとガウス分布で近似"},"厳密な導出は不要。この流れが言えれば OK（Q&A より）。"],
+[1,"理論段数 N が表すものは？",{"c":["平衡操作の何段分にあたるかという効率","カラム内に実際にある仕切りの数","カラム長（m）を 100 倍した値","クロマトグラムに現れるピークの数"]},"H = L/N。同じ H なら長いカラムほど N は大きい。"],
+[1,"ガウスピークの基線幅 W と σ の関係は？",{"c":["W = 4σ","W = 2σ","W = 2.35σ","W = σ/2"]},"変曲点の接線が基線と交わる位置が平均 ± 2σ。\n2.35σ は半値幅 W1/2 の方。"],
+[1,"同じ N なのに、遅く出るピークほど幅が広いのはなぜ？",{"a":"σ = tR / √N なので、tR が長いほど絶対的な幅 σ も大きくなる"},"N = (tR/σ)² は「保持時間に対する相対的な幅」の指標。遅いピークが広いことと矛盾しない。"],
+[1,"分離度 R の定義式は？",{"c":["R = 2(tB − tA) / (WA + WB)","R = (tB − tA) / (WA + WB)","R = (WA + WB) / 2(tB − tA)","R = tB / tA"]},"ピーク間隔 ÷ 平均ピーク幅。N・α・k で書き換えると Purnell 式。"],
+[1,"カラム長を 4 倍にすると分離度 R はおよそ？",{"c":["約 2 倍","約 4 倍","約 16 倍","変わらない"]},"N ∝ L、R ∝ √N なので √4 = 2 倍。"],
+[1,"分離を改善したいとき、実務的に最初に効かせるのは？",{"c":["α（固定相・移動相・pH を変える）","N（カラムをどんどん長くする）","流速（できるだけ遅くする）","検出器（より高感度なものにする）"]},"α は 1 付近で非常に強く効く。次に k を適度な範囲に、それでも足りなければ N。"],
+[1,"保持係数 k の実務的な目安範囲は？",{"c":["およそ 1〜10","0.01〜0.1","100〜1000","大きいほど良い"]},"k が大きすぎると分析時間ばかり伸びる。Purnell 式の k の項も大きい k で飽和する。"],
+[1,"van Deemter 式 H = A + B/ū + Cū の各項は何？",{"a":"A：多流路（渦）拡散\nB/ū：軸方向の分子拡散\nCū：固定相–移動相間の物質移動抵抗"},"B は遅く流すほど拡散する時間が増えるので 1/ū。\nC は速く流すほど平衡から遅れるので ū に比例。"],
+[2,"キャピラリーカラムで A 項が小さいのはなぜ？",{"c":["中空カラムなので多流路拡散がない","カラムがとても長いから","固定相が固体の粒だから","流速をとても遅くするから"]},"他の特徴：流速を高くできるので B↓、細いので C↓、長いので N↑。"],
+[2,"キャピラリーカラムの理論段数は？",{"c":["数 10 万〜100 万段","数 100〜1000 段","1 万〜数万段","10〜100 段程度"]},"充填：L 1–10 m、内径 0.2–0.6 cm、〜1000 段/m\nキャピラリー：L 15–100 m、内径 0.1–0.5 mm"],
+[2,"キャピラリーカラムの弱点は？",{"c":["一度に分離できる試料量が少ない","充填カラムより理論段数が小さい","15 m 以上の長いカラムは作れない","見分けられるピークの数が少ない"]},"河川抽出物：充填 118 ピーク vs キャピラリー 490 ピーク。\n高感度と同じくらい高分離が重要。"],
+[2,"GC のキャリアガスに使わないのは？",{"c":["酸素","ヘリウム","窒素","アルゴン"]},"化学的に「不活性」な気体を使う。"],
+[2,"GC で分析できる試料の条件は？",{"c":["加熱で気化できる","水によく溶ける","イオン化している","分子量 2000 以上"]},"液体固定相：シリコーン油、スクアランなど\n固体固定相：シリカ、活性炭、アルミナ、多孔性ポリマー"],
+[2,"100% ジメチルポリシロキサン固定相の極性と用途は？",{"c":["無極性：炭化水素・多環芳香族・PCB","高極性：アルコール・アルデヒド","中極性：殺虫剤専用","イオン性化合物用"]},"ルーチン用の基本的な多目的相。最高使用温度 320 °C。"],
+[2,"アルコール・ケトン・キシレン異性体の分離に向く高極性固定相は？",{"c":["ポリエチレングリコール（Carbowax）","100% ジメチルポリシロキサン","スクアラン","活性炭"]},"最高使用温度は 250 °C と低め。"],
+[2,"シリカのシラノール基をクロロトリメチルシランで処理し、液相を固定化する流れは？",{"a":"Si–OH をシリル化して表面の活性点をふさぐ\n→ メチルシリコンポリマー（液相）を載せる\n→ ラジカル反応で液相同士・液相と表面を化学結合させる"},"液体固定相が流れ出さないよう化学的に固定する。"],
+[2,"ln k = ΔHv/RT − ln γ + C で、保持が強くなるのは？",{"c":["ΔHv が大きく、γ が小さい","ΔHv が小さく、γ が大きい","ΔHv も γ も大きい","温度 T が高い"]},"ΔHv 大 → 気化しにくい → 保持が強い\nγ 小 → 固定相との相互作用が強い → 保持が強い"],
+[2,"カラム温度を上げると保持係数 k は？",{"c":["小さくなる（早く出る）","大きくなる","変わらない","炭素数によって逆になる"]},"ΔHv/RT の項が小さくなるため。ln k（ln Vg）は 1/T に対して直線。"],
+[2,"同族列（直鎖アルカンなど）で炭素数が増えると保持は？",{"c":["保持比の対数がほぼ直線的に増える","炭素数に比例して直線的に弱くなる","炭素数によらずほとんど一定になる","炭素数とともに指数関数的に減る"]},"短い炭化水素ほど揮発しやすく保持が弱い。"],
+[2,"昇温法（70 °C から 6 °C/min）にすると何が良い？",{"a":"定温（110 °C）では後半の C15・C16 が遅く幅広くなるが、昇温すると高沸点成分も早くシャープに出て、C8〜C16 を短時間でまとめて分離できる"},"昇温法はグラディエント法の一種。"],
+[2,"保持指標 I は何を基準に、何に使う？",{"a":"直鎖アルカンの溶出位置を基準に保持を数値化したもの。化合物の同定に使う"},"n-アルカン自身は I = 100 × 炭素数（n-オクタン = 800）。対数で内挿するのがポイント。"],
+[3,"TCD の検出原理は？",{"c":["試料の有無による熱伝導度の変化をブリッジ回路の電圧変化で検出","水素炎で燃やしてイオン化電流を検出","⁶³Ni の β 線で生じる電子電流の変化を検出","水素炎中の発光を検出"]},"フィラメント温度↑ → 電気抵抗↑。R1 が参照用、R3 が試料用。\n試料を壊さない・単純で堅牢・感度は低い。"],
+[3,"有機物（炭化水素）に高感度で、検量線の直線範囲が広いのは？",{"c":["FID","TCD","ECD","FPD"]},"水素炎イオン化検出器。炎で燃やしてイオン化電流を検出。検出下限 10 pg/s。"],
+[3,"ハロゲン化合物に高感度なのは？",{"c":["ECD","FID","FPD","TCD"]},"電子捕獲検出器。⁶³Ni の β 線とキャリアガスで生じる電子電流が、電子を捕まえる成分で減るのを検出。PAH、N₂O にも応答。"],
+[3,"硫黄・リン化合物の発光を検出するのは？",{"c":["FPD","FID","ECD","TCD"]},"炎光光度検出器。水素炎中で励起された S・P 化合物の発光を干渉フィルタ＋光電子増倍管で検出。"],
+[3,"N・P 化合物に高感度なのは？",{"c":["熱イオン化検出器（TID・NPD）","電子捕獲検出器（ECD）","熱伝導度検出器（TCD）","炎光光度検出器（FPD）"]},"検出下限 1 pg/s（N）、0.1 pg/s（P）。"],
+[3,"濃度依存型（C）の検出器の組み合わせは？",{"c":["TCD・ECD","FID・MS","FPD・NPD","FID・ECD"]},"C 型：検出器中の溶質濃度に依存、非破壊が多い\nM 型（FID・FPD・NPD・MS）：入ってくる量に依存、破壊が多い"],
+[3,"GC 検出器の中で感度が最も低いのは？",{"c":["TCD","FID","ECD","MS"]},"TCD は汎用だが感度が低い。ECD は 0.1 pg/mL と非常に高感度。"],
+[3,"四重極 MS の原理は？",{"c":["直流＋高周波の電場で特定 m/z だけが通り抜ける","同じ電圧で加速し、飛行時間の差で分ける","イオンを磁場で曲げず、屈折率の差で分ける","イオンの熱伝導度の差をブリッジ回路で測る"]},"電圧を掃引して通す m/z を切り替える。"],
+[3,"TOF-MS（½mv² = Vq）で、電荷が同じなら先に検出器に着くのは？",{"c":["軽いイオン","重いイオン","同時","電荷の符号による"]},"v = √(2Vq/m)。m が小さいほど速い。"],
+[6,"HPLC で汎用だが温度に敏感で、グラディエントがほぼ使えない検出器は？",{"c":["示差屈折率検出器（RID）","紫外可視吸収検出器（UV）","蛍光検出器（FL）","電気伝導度検出器（CD）"]},"移動相と「移動相＋試料」の屈折率差を測る（スネルの法則 n₁sinθ₁ = n₂sinθ₂）。温度は ±0.01 °C で制御。"],
+[6,"UV 検出器でグラディエント溶離をするときの制限は？",{"c":["紫外吸収のない移動相に限られる","使えない","温度を ±0.01 °C に制御する","イオン種しか測れない"]},"用途は紫外吸収性化合物。"],
+[6,"ランバート・ベールの法則を書け。",{"a":"A = log₁₀(P₀/P) = abc\n（a 吸光係数、b 光路長、c 濃度）"},"P/P₀ = 10^(−abc) と同じ意味。"],
+[6,"蛍光強度 F が濃度に比例するとみなせる条件は？",{"c":["abc ≤ 0.01（十分に希薄）","abc ≥ 1（十分に濃厚）","φ = 1（量子収率が最大）","P₀ ≤ 1（励起光が十分弱い）"]},"F = φP₀(1 − 10^(−abc)) ≈ 2.3φP₀abc"],
+[6,"蛍光検出器が測る光は？",{"c":["吸収した光より波長の長い蛍光","吸収した光と同じ波長の散乱光","吸収した光より波長の短い光","試料を通り抜けた透過光そのもの"]},"用途は蛍光性化合物。UV より選択性・感度が高い。"],
+[4,"HPLC の 4 分類は？",{"a":"① 液-液（分配）\n② 液-固（吸着）\n③ イオン交換（イオンクロマト）\n④ サイズ排除"},""],
+[4,"HPLC の選択の幅が GC より広い理由は？",{"c":["移動相の種類・組成も変えられる","カラムをより長くできる","より高温で分析できる","使える検出器が多い"]},"分析中に移動相の組成を変えるグラディエント法も使える。"],
+[4,"「順相」の定義は？",{"c":["固定相の極性 ＞ 移動相の極性","固定相の極性 ＜ 移動相の極性","移動相が気体","固定相がイオン交換体"]},"逆相はその逆（固定相のほうが低極性）。"],
+[4,"逆相の固定相で最も疎水性が大きいのは？",{"c":["オクタデシル基（C18）","メチル基（C1）","エチル基（C2）","オクチル基（C8）"]},"疎水性：メチル ＜ エチル ＜ オクチル ＜ オクタデシル"],
+[4,"順相の固定相に使わないのは？",{"c":["オクタデシル基","ジオール基","シアノ基","ジアミノ基"]},"極性：ジオール ＜ シアノ ＜ ジメチルアミノ ＜ アミノ ＜ ジアミノ"],
+[4,"逆相 HPLC で「水 20%・アセトニトリル 80%」にするとピークは？",{"c":["早く溶出して固まり、分離が悪くなる","遅く溶出して広がり、分離がよくなる","保持時間もピーク形もほとんど変化しない","強く保持されてカラムから溶出しなくなる"]},"有機溶媒を増やすと移動相の溶出力が上がる。水 60%・ACN 40% にすると分離が改善。メタノールを混ぜて選択性も変えられる。"],
+[4,"【問題2】トルエン（低極性）・アセトフェノン（中）・フェノール（高）の溶出順（早い順）を、順相と逆相それぞれで答えよ。",{"a":"順相：トルエン → アセトフェノン → フェノール\n逆相：フェノール → アセトフェノン → トルエン"},"固定相と極性が近い成分ほど保持される（遅く出る）。"],
+[4,"分子量 ＜ 2000、水に不溶、非極性の試料に選ぶのは？",{"c":["逆相クロマト","順相クロマト","イオン交換クロマト","サイズ排除クロマト"]},"水に不溶で極性 → 順相、分子量に差 → サイズ排除。"],
+[4,"分子量 ＞ 2000 の試料に選ぶのは？",{"c":["サイズ排除クロマト","逆相クロマト","イオン交換クロマト","順相クロマト"]},"分離法選択の目安（樹形図）の一番上の枝。"],
+[4,"分子量 ＜ 2000、水に可溶、弱イオン性の試料に選ぶのは？",{"c":["イオン交換か逆相","順相のみ","サイズ排除のみ","GC のみ"]},"強イオン性ならイオン交換。"],
+[5,"強酸性陽イオン交換樹脂の交換基は？",{"c":["スルホン酸基（−SO₃H）","カルボキシ基（−COOH）","第四級アンモニウム基","アルキルアミノ基"]},"全 pH 域で使える。−COOH・−PO₃H₂ は弱酸性で中性〜塩基性。"],
+[5,"弱塩基性陰イオン交換樹脂の有効 pH 範囲は？",{"c":["酸性〜中性","中性〜塩基性","全領域","強塩基性のみ"]},"アルキルアミノ基（−NR₂, −NHR, −NH₂）。強塩基性の第四級アンモニウムは全領域。"],
+[5,"陰イオン交換樹脂への親和性が最も強いのは？",{"c":["SO₄²⁻","F⁻","Cl⁻","NO₃⁻"]},"2 価は 1 価より親和力が強い。\n溶出順：F⁻ → Cl⁻ → NO₂⁻ → Br⁻ → NO₃⁻ → HPO₄²⁻ → SO₄²⁻"],
+[5,"1 価陽イオンで、イオン交換樹脂への親和性が最も小さいのは？",{"c":["Li⁺","Cs⁺","K⁺","Ag⁺"]},"Li⁺ ＜ H⁺ ＜ Na⁺ ＜ NH₄⁺ ＜ K⁺ ＜ Rb⁺ ＜ Cs⁺ ＜ Ag⁺ ＜ Tl⁺"],
+[5,"試料がイオン化しない pH ではどうなる？",{"c":["保持されない","強く保持される","カラムから出てこない","pH は関係ない"]},"保持値は塩の種類・濃度・pH で変わる。完全にイオン化する条件では pH の影響が小さい。"],
+[5,"弱酸で pH = pKa + 1.5 のとき、陰イオン型は約何%？",{"c":["約 97%","約 50%","約 75%","約 99.9%"]},"[A⁻]/C = 1/(1 + 10^(−1.5)) = 1/1.032 ≈ 0.97"],
+[5,"イオンクロマトのサプレッサーの役割は？",{"a":"溶離液（NaOH・HCl）のイオンを水に変えて取り除き、バックグラウンドの電気伝導率を下げて試料イオンを高感度に検出する"},"陰イオン分析：Na⁺ + OH⁻ + R⁻H⁺ → H₂O + R⁻Na⁺\n陽イオン分析：H⁺ + Cl⁻ + P⁺OH⁻ → H₂O + P⁺Cl⁻"],
+[5,"陰イオン分析で使うサプレッサーカラムは？",{"c":["陽イオン交換型（RzSO₃⁻H⁺）","陰イオン交換型（RzNR₃⁺OH⁻）","C18 カラム","シリカゲル"]},"分析カラム（陰イオン交換）と逆の型。試料 M⁺A⁻ は H⁺A⁻ になって検出される。"],
+[5,"【問題3】SEC で A 300 kDa・B 70 kDa・C 1 kDa の溶出順（早い順）は？",{"c":["A → B → C","C → B → A","B → A → C","すべて同時"]},"大きい分子はゲルの細孔に入れず最短経路で先に出る。小さい分子は細孔の奥まで入り遠回り。"],
+[5,"SEC で完全に排除される分子の K と溶出位置は？",{"c":["K = 0、V₀ で溶出","K = 1、Ve で溶出","K = 0.5、中間","保持されず出てこない"]},"完全浸透は K = 1・Ve。0 ＜ K ＜ 1 が選択的浸透（分画領域）。"],
+[5,"SEC の充填剤（多孔質ゲル）として挙げたのは？",{"c":["アガロース・ポリアクリルアミドなど","C18 修飾シリカ・C8 修飾シリカ","スルホン酸型・カルボン酸型樹脂","活性アルミナ・活性炭など"]},"分子量の違いをゲルの網目（分子ふるい）で分ける。"],
+[5,"アガロース電気泳動でゲル濃度を 1% → 3% にすると、同じ DNA の移動度は？",{"c":["低下する","上がる","変わらない","向きが逆になる"]},"網目が細かくなるため。分子量が大きい DNA ほど移動度が低い（分子ふるい効果）。"],
+[7,"【問題1】補正保持時間：n-ヘプタン 10.0 min、試料 X 15.7 min、n-オクタン 20.0 min。X の保持指標 I は？（有効数字 3 桁）",{"a":"I = 765"},"I = 700 + 100 × (log 15.7 − log 10.0)/(log 20.0 − log 10.0)\n= 700 + 100 × 0.1959/0.3010\n= 700 + 65.1 ≈ 765"],
+[7,"t₀ = 2.0 min、tA = 8.0 min のとき保持係数 kA は？",{"c":["3.0","4.0","0.25","6.0"]},"k = (tA − t₀)/t₀ = (8.0 − 2.0)/2.0"],
+[7,"k = 3.0 の成分を同じ固定相・移動相の TLC で展開したときの Rf は？",{"c":["0.25","0.33","0.75","3.0"]},"Rf = t₀/tA = 1/(1 + k)"],
+[7,"TLC で Rf = 0.20 だった成分を同条件の HPLC に移したときの k は？",{"c":["4.0","5.0","0.25","0.80"]},"k = 1/Rf − 1 = 5 − 1"],
+[7,"tR = 10.0 min、基線幅 W = 0.50 min のときの理論段数 N は？",{"c":["6400","400","1600","25600"]},"N = 16(tR/W)² = 16 × 20² = 6400"],
+[7,"L = 30 m、N = 150,000 段のキャピラリーの理論段高 H は？",{"c":["0.20 mm","2.0 mm","0.020 mm","5.0 mm"]},"H = L/N = 30/150000 = 2.0 × 10⁻⁴ m"],
+[7,"tA = 6.0、tB = 6.6 min、WA = WB = 0.30 min のときの分離度 R は？",{"c":["2.0","1.0","0.50","4.0"]},"R = 2(6.6 − 6.0)/(0.30 + 0.30) = 1.2/0.60"],
+[7,"被検成分追加法：添加前 A₁/B₁ = 0.50、A を ΔMA = 10 mg 加えたら A₂/B₂ = 1.50。元の A の量は？",{"c":["5.0 mg","10 mg","20 mg","3.3 mg"]},"mA = ΔMA / {(A₂/B₂)(B₁/A₁) − 1}\n= 10 / (3.0 − 1) = 5.0 mg"],
+[7,"被検成分追加法で、A だけでなく B との面積比を使う理由は？",{"a":"添加による希釈や注入量のばらつきは A と B に共通にかかるので、比をとると打ち消せるから"},"添加前後で B の濃度と注入量が同じなら A₂/A₁ だけでも計算できる。"],
+[6,"TLC で展開溶媒を上昇させる力は？",{"c":["毛細管現象","ポンプ圧","重力","電場"]},"固定相：シリカゲル・活性アルミナ・イオン交換体などをガラス板に塗布。"],
+[6,"TLC の検出法として講義で挙げた 3 つは？",{"a":"① 硫酸噴霧で炭化\n② 発色試薬を噴霧\n③ 蛍光試薬入りの薄層板に紫外光を当てる"},""],
+[2,'GC で、試料を沸点以上まで加熱する必要はある？',{c:['必ずしも必要ない（蒸気圧があれば移動できる）','必ず沸点より 50 °C 以上高くする','沸点ちょうどにする','沸点より低くしないと分解する']},'10/20 の Q&A より。ただし揮発が遅いとピーク形状が悪くなり、熱分解する成分には向かない。'],
+[2,'昇温 GC のクロマトグラムの横軸は？',{c:['保持時間','温度','温度 × 時間','流量']},'温度は時間に沿って変える「分析条件」。'],
+[2,'保持指標の式で、保持時間そのものではなく対数を使う理由は？',{c:['等温では log t′R が炭素数にほぼ比例するから','対数を使うと電卓で計算が楽になるから','補正保持時間は負になることがあるから','昇温 GC でもそのまま同じ式が使えるから']},'昇温 GC では対数式ではなく、線形に補間する linear retention index を使う。'],
+[3,'GC 検出器で「濃度依存型」の TCD を使って定量するとき、流量を一定にする必要がある理由は？',{c:['流量が変わると、同じ物質量でもピーク面積が変わるから','流量が変わると検出器が壊れるから','流量が一定でないと試料が燃えないから','質量流量依存型と同じ理由で、流量は関係ない']},'質量流量依存型（FID など）は原理的にピーク面積が流量に依存しない。'],
+[3,'TCD の信号だけで物質の種類を見分けられる？',{c:['見分けられない（標準物質の保持時間と比べる）','見分けられる（熱伝導度は物質ごとに固有）','見分けられる（ピークの高さが物質ごとに固有）','見分けられる（ピークの幅が物質ごとに固有）']},'確実に同定したいときは GC-MS などを使う。'],
+[3,'MS がほかの GC 検出器より優れて見えても、全部 MS にしない理由として正しいのは？',{c:['高価で維持管理が複雑、しかも破壊型だから','GC 検出器の中で感度がいちばん低いから','有機化合物はほとんど測れないから','保持時間の情報が得られなくなるから']},'目的に合わせて FID・TCD・ECD・FPD などを使い分ける。'],
+[3,'FID で電流になっているものは？',{c:['水素炎の中で生じた正イオンと電子','試料が水素炎の中で出す光','キャリアガスの熱伝導度の変化','⁶³Ni から出る β 線の電子']},'一般的な炭化水素では、入ってくる炭素の量にほぼ比例する。'],
+[4,'逆相 HPLC で、水と混ざらない有機溶媒を移動相に使わないのはなぜ？',{c:['移動相は均一な一相でないといけないから','水と混ざらない有機溶媒は高価だから','水と混ざらない溶媒は UV で検出できないから','水と混ざらない溶媒で固定相が溶けるから']},'水とメタノールやアセトニトリルなど、互いに混ざる溶媒を使う。'],
+[4,'RID（示差屈折率検出器）は通常どんな溶離条件で使う？',{c:['組成を変えないアイソクラティック','組成を連続的に変えるグラディエント','カラム温度を上げていく昇温','pH を段階的に変えるステップ']},'RID は移動相の屈折率変化にも強く応答してしまう。'],
+[5,'イオン交換で、保持された成分をカラムから溶出させる方法は？',{c:['塩濃度を上げる、または pH を変える','カラム温度を急に大きく下げる','流速をゼロにしてしばらく待つ','有機溶媒だけを大量に流す']},'塩濃度を上げると競合イオンが増える。pH を変えると荷電状態が変わる。'],
+[5,'SEC の溶出位置を直接決めているものは？',{c:['溶液中の見かけの大きさ','分子量の数値そのもの','分子が持つ電荷の大きさ','分子の極性の高さ']},'同じ分子量でも球状か細長いかで溶出位置がちがう。'],
+[5,'クロマトグラムの右側（保持時間が長い）にあるピークについて正しいのは？',{c:['SEC では小さい分子ほど右側に出る','どの方法でも分子量が大きいほど右側','どの方法でも極性が高いほど右側','右側ほど濃度が高い']},'GC や通常の LC では保持が強いものほど右だが、SEC では細孔に入る小さい分子が遅れる。'],
+[6,'TLC が反応の追跡や物質の確認によく使われる理由は？',{c:['少量・短時間・低コストで比べられるから','HPLC より精密に定量できるから','スポットから分子量が分かるから','温度を変えて分離を調整できるから']},'精密な同定・定量が必要なら HPLC や MS で確認する。'],
+[7,'2成分の分離度 Rs がおよそいくつ以上なら、ベースライン分離の目安？',{c:['1.5','0.5','5','15']},'10/20 の Q&A より。'],
+]});
+
+// ===== 10/20 酸塩基反応と中和滴定 =====
+L({id:'1020',date:'10/20',title:'酸塩基反応と中和滴定',short:'酸塩基・中和滴定',
+ch:[
+{t:'酸と塩基',html:`
+<h2>酸と塩基の定義と解離定数</h2>
+<p class="lead">中和滴定は、中和反応による<b>pH の変化</b>を使って量を決める方法。当量点（中和点）の前後で pH が大きく変わる。まず酸と塩基をきちんと定義する。</p>
+<h3>2つの定義</h3>
+<div class="duo">
+<div><strong>Arrhenius</strong><span>酸：H⁺ を出す（HCl、HNO₃、H₂SO₄）</span><span>塩基：OH⁻ を出す（NaOH、KOH、Ca(OH)₂）</span><span>Na₂CO₃ や NH₃ が塩基性になるのを説明できない</span></div>
+<div><strong>Brønsted-Lowry</strong><span>酸：H⁺ を<b>渡す</b>もの（供与体）</span><span>塩基：H⁺ を<b>受け取る</b>もの（受容体）</span><span>水の役割まで考える</span></div>
+</div>
+<div class="formula">HA + H₂O → H₃O⁺ + A⁻　　B + H₂O → HB⁺ + OH⁻<small>例：NH₃ + H₂O → NH₄⁺ + OH⁻。H₃O⁺ はオキソニウム（ヒドロニウム）イオン</small></div>
+<p>HA と A⁻、HB⁺ と B のように H⁺ 1個だけちがう組を<b>共役酸</b>・<b>共役塩基</b>という。強酸は HClO₄、HBr、H₂SO₄、HCl。</p>
+<h3>解離定数</h3>
+<div class="formula">Ka = [H⁺][A⁻]/[HA]　　Kb = [HB⁺][OH⁻]/[B]<small>うすい水溶液では [H₂O] ≡ 1（正確には活量が 1）とみなして式から外す</small></div>
+<p>Ka が大きい（<b>pKa = −log Ka が小さい</b>）ほど解離しやすい＝強い酸。</p>
+<h3>水のイオン積</h3>
+<div class="formula">Kw = [H⁺][OH⁻] = 1.0 × 10⁻¹⁴ M²（25 °C）</div>
+<div class="formula">共役酸塩基対では　Ka × Kb = Kw　→　pKa + pKb = 14</div>
+<p>最近は塩基の強さも<b>共役酸の pKa</b> で表すことが多い（アンモニアなら NH₄⁺ の pKa = 9.24）。</p>
+<div class="tblwrap"><table class="tbl">
+<tr><th>物質</th><th>pKa</th></tr>
+<tr><td>酢酸</td><td>4.76</td></tr>
+<tr><td>リン酸</td><td>2.15 / 7.20 / 12.35</td></tr>
+<tr><td>炭酸</td><td>6.34 / 10.25</td></tr>
+<tr><td>アンモニア（NH₄⁺）</td><td>9.24</td></tr>
+<tr><td>フェノール</td><td>9.89</td></tr>
+</table></div>
+<p class="slide">対応スライド：「酸と塩基：Arrhenius の定義」〜「酸解離指数 pKa」</p>`},
+
+{t:'pHの計算',html:`
+<h2>水溶液の [H₃O⁺] を求める</h2>
+<p class="lead">道具は2つだけ。<b>チャージバランス</b>（＋と−の電荷の合計は等しい）と<b>マスバランス</b>（入れた物質の総量は変わらない）。</p>
+<h3>問題1：強塩基</h3>
+<p>1.0 × 10⁻² M NaOH → [OH⁻] = 1.0 × 10⁻²、[H⁺] = Kw/[OH⁻] = 1.0 × 10⁻¹² → <b>pH 12.00</b></p>
+<h3>強酸 HA（ほぼ全部解離）</h3>
+<div class="formula">[H₃O⁺] = [A⁻] + [OH⁻] = [A⁻] + Kw/[H₃O⁺]</div>
+<div class="formula">[H₃O⁺] = ([A⁻] + √([A⁻]² + 4Kw)) / 2<small>濃度は負にならないので＋の解。[A⁻] は HA の全濃度とおける</small></div>
+<h3>弱酸 HA（濃度 Ca）</h3>
+<p>チャージバランス [H₃O⁺] = [A⁻] + [OH⁻]、マスバランス Ca = [HA] + [A⁻] から、厳密には [H₃O⁺] の3次方程式になる。そこで近似する。</p>
+<div class="defs">
+<div><span class="k">近似1</span><span>溶液が酸性（[H₃O⁺] ≫ [OH⁻]、pH 6 以下が目安）<br>[H₃O⁺] = (−Ka + √(Ka² + 4KaCa)) / 2</span></div>
+<div><span class="k">近似2</span><span>さらに Ca ≫ [H₃O⁺]（[H₃O⁺]/Ca ≤ 5%、ほとんど解離していない）<br><b>[H₃O⁺] = √(Ka Ca)</b></span></div>
+</div>
+<p>例：0.10 M 酢酸 → √(1.74×10⁻⁵ × 0.10) = 1.3×10⁻³ M → pH 2.88</p>
+<h3>弱酸の塩 NaA（濃度 Cb）</h3>
+<p>A⁻ + H₂O ⇄ HA + OH⁻ で<b>塩基性</b>になる。</p>
+<div class="defs">
+<div><span class="k">近似1</span><span>溶液が塩基性（pH 8 以上が目安）<br>[H₃O⁺] = (Kw + √(Kw² + 4KaKwCb)) / 2Cb</span></div>
+<div><span class="k">近似2</span><span>さらに Cb ≫ [OH⁻]<br><b>[H₃O⁺] = √(Ka Kw / Cb)</b></span></div>
+</div>
+<p>例：0.050 M 酢酸ナトリウム → √(1.74×10⁻⁵ × 10⁻¹⁴ / 0.050) = 1.9×10⁻⁹ → pH 8.73（0.1 M どうしの酢酸の滴定の当量点）</p>
+<p class="slide">対応スライド：「水溶液のオキソニウムイオン濃度の求め方」4枚</p>`},
+
+{t:'緩衝液',html:`
+<h2>pH 緩衝液：pH を変えにくい溶液</h2>
+<p class="lead"><b>弱酸（弱塩基）とその塩</b>を混ぜると、酸や塩基を少し加えても pH がほとんど変わらない。</p>
+<p>弱酸 HA（Ca）と塩 NaA（Cb）の混合液では、チャージバランス Cb + [H₃O⁺] = [A⁻] + [OH⁻]、マスバランス Ca + Cb = [HA] + [A⁻]。両方とも濃い（Ca, Cb ≫ [H₃O⁺], [OH⁻]）とすると</p>
+<div class="formula">[H₃O⁺] = Ka Ca / Cb</div>
+<div class="formula">pH = pKa + log(Cb/Ca)　（= pKa + log([A⁻]/[HA])）<small>ヘンダーソン・ハッセルバルヒ式。厳密には平衡濃度 [A⁻]、[HA] の式で、Ca・Cb を使うのは近似</small></div>
+<h3>授業の問題</h3>
+<p>問題2：0.10 M 酢酸 ＋ 0.10 M 酢酸ナトリウム（pKa 4.76）</p>
+<div class="formula">pH = 4.76 + log(0.10/0.10) = 4.76</div>
+<p>問題3：そこへ NaOH を 1.0 × 10⁻² M 加える。NaOH が酢酸を中和するので Ca = 0.09、Cb = 0.11</p>
+<div class="formula">pH = 4.76 + log(0.11/0.09) = 4.76 + 0.09 = 4.85</div>
+<div class="note">純水に同じ NaOH を入れると pH 7 → 12 に跳ね上がる。緩衝液だと 0.09 しか変わらない。</div>
+<h3>リン酸：3つの pH で緩衝作用</h3>
+<div class="formula">H₃PO₄ ⇄ H₂PO₄⁻（pKa₁ 2.15）⇄ HPO₄²⁻（pKa₂ 7.20）⇄ PO₄³⁻（pKa₃ 12.35）</div>
+<p>それぞれの pKa と同じ pH では、共役酸と共役塩基の濃度が<b>等しく</b>なる。このとき緩衝作用がいちばんよく効く。リン酸は<b>3つの pH 領域</b>で緩衝液になる。</p>
+<p class="slide">対応スライド：「pH 緩衝溶液」〜「多段階の酸解離平衡：リン酸」</p>`},
+
+{t:'滴定曲線',html:`
+<h2>滴定曲線の読み方</h2>
+<h3>当量点の pH は 7 とは限らない</h3>
+<div class="tblwrap"><table class="tbl">
+<tr><th>組み合わせ</th><th>当量点にあるもの</th><th>当量点の pH</th></tr>
+<tr><td>HCl を NaOH で</td><td>NaCl</td><td>7</td></tr>
+<tr><td>酢酸を NaOH で</td><td>CH₃COONa（塩基性）</td><td>約 9</td></tr>
+<tr><td>NH₃ を HCl で</td><td>NH₄Cl（酸性）</td><td>約 5</td></tr>
+</table></div>
+<p>弱酸の滴定では、当量点で CH₃COO⁻ + H₂O ⇄ CH₃COOH + OH⁻ が起こって塩基性になる。</p>
+<h3>濃度を下げると</h3>
+<p><b>pH ジャンプ（当量点での急な変化）が小さくなる</b>。酢酸の当量点の pH も 8.73（0.1 M）→ 8.23（0.01 M）→ 7.73（0.001 M）と下がる。</p>
+<h3>Ka・Kb が小さいと</h3>
+<p>弱い酸ほど滴定の始まりの pH が高く、当量点でのジャンプが小さい。<b>Ka（Kb）が小さい弱酸（弱塩基）の滴定は難しい</b>（Ka = 10⁻⁹ くらいだとほとんどジャンプしない）。</p>
+<h3>多段階の滴定：リン酸</h3>
+<ul>
+<li><b>半当量点</b>の pH ≈ pKa（共役酸と共役塩基が同じ量だから）</li>
+<li>第1当量点 pH₁ = (pKa₁ + pKa₂)/2 = (2.15 + 7.20)/2 ≈ 4.7</li>
+<li>第2当量点 pH₂ = (pKa₂ + pKa₃)/2 = (7.20 + 12.35)/2 ≈ 9.8</li>
+</ul>
+<p class="slide">対応スライド：「中和滴定：中和反応による pH 変化で物質を定量」〜「多段階の中和滴定の例」</p>`},
+
+{t:'指示薬と応用',html:`
+<h2>指示薬：色で当量点を知らせる</h2>
+<p class="lead">指示薬<b>自身も弱酸（または弱塩基）</b>で、HInd と Ind⁻ で色がちがう。</p>
+<div class="formula">HInd（赤）+ H₂O ⇄ H₃O⁺ + Ind⁻（青）</div>
+<div class="formula">pH = pKa + log([Ind⁻]/[HInd])</div>
+<p>片方がもう片方の<b>10倍以上</b>あると、その色だけが見える。</p>
+<ul>
+<li>赤に見える：pH < pKa − 1</li>
+<li>青に見える：pH > pKa + 1</li>
+</ul>
+<div class="note">つまり色がはっきり変わるには、<b>pKa を中心に 2 以上の pH 変化</b>が必要。指示薬の変色域が、滴定の pH ジャンプの中に収まるものを選ぶ。</div>
+<div class="tblwrap"><table class="tbl">
+<tr><th>指示薬</th><th>変色（酸性 → 塩基性）</th><th>変色域の目安</th></tr>
+<tr><td>メチルオレンジ</td><td>赤 → 黄</td><td>pH 3〜4.5</td></tr>
+<tr><td>ブロモフェノールブルー</td><td>黄 → 青</td><td>pH 3〜4.6（pKa 4.1）</td></tr>
+<tr><td>メチルレッド</td><td>赤 → 黄</td><td>pH 4.4〜6.2</td></tr>
+<tr><td>ブロモチモールブルー</td><td>黄 → 青</td><td>pH 6〜7.6</td></tr>
+<tr><td>フェノールフタレイン</td><td>無色 → 赤紫</td><td>pH 8〜10（pKa 9.7）</td></tr>
+</table></div>
+<ul>
+<li>強酸 − 強塩基：ジャンプが大きいので、フェノールフタレインでもブロモチモールブルーでもよい</li>
+<li>酢酸（弱酸）を NaOH で：当量点が塩基性 → <b>フェノールフタレイン</b></li>
+<li>NH₃（弱塩基）を HCl で：当量点が酸性 → <b>メチルレッド</b></li>
+</ul>
+<h3>応用：NaOH と Na₂CO₃ の分別定量</h3>
+<p>固体の NaOH は空気中の CO₂ にふれて表面が Na₂CO₃ になる。Na₂CO₃ の中和は<b>2段階</b>。</p>
+<div class="formula">CO₃²⁻ + H₃O⁺ → HCO₃⁻ + H₂O　　HCO₃⁻ + H₃O⁺ → CO₂ + 2H₂O</div>
+<div class="flow">
+<div><b>フェノールフタレイン</b>で終点まで HCl を加える → NaOH の当量点＋Na₂CO₃ の第1当量点<br>n(HCl) = n(NaOH) + n(Na₂CO₃)</div>
+<div>続けて<b>メチルオレンジ</b>で終点まで → Na₂CO₃ の第2当量点<br>追加した HCl = n(HCO₃⁻) = n(Na₂CO₃)</div>
+</div>
+<p class="slide">対応スライド：「指示薬：pH による色の変化で当量点を検出」〜「NaOH と Na₂CO₃ の分別定量」</p>`}
+],
+q:[
+[0,'Brønsted-Lowry の定義で「酸」とは？',{c:['H⁺ を渡すもの（供与体）','H⁺ を受け取るもの（受容体）','OH⁻ を出すもの（水酸化物）','電子対を受け取るもの（受容体）']},'塩基は H⁺ を受け取るもの（受容体）。'],
+[0,'Arrhenius の定義では説明しにくいのは？',{c:['NH₃ の水溶液が塩基性になること','HCl の水溶液が酸性になること','NaOH の水溶液が塩基性になること','H₂SO₄ が酸であること']},'NH₃ は OH⁻ を持っていない。NH₃ + H₂O → NH₄⁺ + OH⁻ と水まで考えると説明できる。'],
+[0,'H₃O⁺ の名前は？',{c:['オキソニウムイオン','ヒドロキシドイオン','アンモニウムイオン','ヒドリドイオン']},'ヒドロニウムイオンとも呼ぶ。'],
+[0,'NH₃ + H₂O → NH₄⁺ + OH⁻ で、NH₃ の共役酸は？',{c:['NH₄⁺','OH⁻','H₂O','H₃O⁺']},'H⁺ 1個だけちがう組が共役酸塩基対。'],
+[0,'弱酸 HA の酸解離定数 Ka の式は？',{c:['[H⁺][A⁻] / [HA]','[HA] / [H⁺][A⁻]','[H⁺][OH⁻]','[A⁻] / [HA]']},'[H₂O] はうすい水溶液では 1（活量 1）とみなして式から外す。'],
+[0,'25 °C での水のイオン積 Kw は？',{c:['1.0 × 10⁻¹⁴ M²','1.0 × 10⁻⁷ M²','1.0 × 10⁻¹⁴ M','1.0 × 10¹⁴ M²']},''],
+[0,'共役酸と共役塩基の Ka と Kb の関係は？',{c:['Ka × Kb = Kw','Ka + Kb = Kw','Ka / Kb = Kw','Ka = Kb']},'対数をとると pKa + pKb = 14（25 °C）。'],
+[0,'NH₄⁺ の pKa が 9.24 のとき、NH₃ の pKb は？',{c:['4.76','9.24','14.0','23.2']},'14 − 9.24'],
+[0,'pKa が小さい酸ほど？',{c:['解離しやすい（強い酸）','解離しにくい（弱い酸）','濃度が高い','揮発しやすい']},'pKa = −log Ka'],
+[0,'酢酸の pKa は？（講義の値）',{c:['4.76','9.24','2.15','6.34']},'9.24 は NH₄⁺、2.15 はリン酸の第1段、6.34 は炭酸の第1段。'],
+[1,'【問題1】1.0 × 10⁻² M NaOH 水溶液の pH は？（25 °C、全部解離）',{c:['12.00','2.00','10.00','14.00']},'[H⁺] = Kw/[OH⁻] = 10⁻¹⁴/10⁻² = 10⁻¹²'],
+[1,'溶液中の正電荷の総和と負電荷の総和が等しいことを何という？',{c:['チャージバランス','マスバランス','プロトンバランス','イオン積']},'マスバランスは「入れた物質の総量は一定」。'],
+[1,'強酸 HA の [H₃O⁺] を厳密に求める式は？',{c:['([A⁻] + √([A⁻]² + 4Kw)) / 2','([A⁻] − √([A⁻]² + 4Kw)) / 2','√(Kw [A⁻])','[A⁻] + Kw']},'[H₃O⁺]² − [A⁻][H₃O⁺] − Kw = 0 を解く。濃度は負にならないので＋の解。'],
+[1,'弱酸（濃度 Ca）で「酸性かつ Ca ≫ [H₃O⁺]」のときの近似式は？',{c:['[H₃O⁺] = √(Ka Ca)','[H₃O⁺] = Ka Ca','[H₃O⁺] = √(Ka / Ca)','[H₃O⁺] = Ca']},'目安：pH 6 以下で、[H₃O⁺]/Ca ≤ 5%。'],
+[1,'0.10 M 酢酸（Ka = 1.74 × 10⁻⁵）の pH は？',{c:['約 2.9','約 1.0','約 4.8','約 5.8']},'√(1.74×10⁻⁵ × 0.10) = 1.3×10⁻³ → pH 2.88'],
+[1,'弱酸の近似 [H₃O⁺] = √(KaCa) を使ってよい目安は？',{c:['pH 6 以下で、[H₃O⁺]/Ca ≤ 5%','pH 8 以上で、[OH⁻]/Ca ≤ 5%','どんな濃度でも使える','Ka が 1 より大きいとき']},''],
+[1,'酢酸ナトリウムの水溶液が塩基性になる理由は？',{c:['CH₃COO⁻ が水から H⁺ をもらい OH⁻ ができるから','Na⁺ が水と反応して OH⁻ を出すから','酢酸ナトリウム自体が強塩基だから','水が分解して OH⁻ だけが増えるから']},''],
+[1,'弱酸の塩 NaA（濃度 Cb）で「塩基性かつ Cb ≫ [OH⁻]」のときの近似式は？',{c:['[H₃O⁺] = √(Ka Kw / Cb)','[H₃O⁺] = √(Ka Cb)','[H₃O⁺] = Ka Kw Cb','[H₃O⁺] = √(Kw / Cb)']},''],
+[1,'0.050 M 酢酸ナトリウム（Ka = 1.74 × 10⁻⁵）の pH は？',{c:['約 8.7','約 7.0','約 5.3','約 12.7']},'√(1.74×10⁻¹⁹/0.050) = 1.9×10⁻⁹。0.1 M どうしの酢酸の滴定の当量点がこれ。'],
+[2,'pH 緩衝液になるのはどの組み合わせ？',{c:['弱酸とその塩','強酸とその塩','強酸と強塩基','純水と食塩']},'例：酢酸＋酢酸ナトリウム、NH₃＋NH₄Cl。'],
+[2,'ヘンダーソン・ハッセルバルヒ式は？',{c:['pH = pKa + log([A⁻]/[HA])','pH = pKa + log([HA]/[A⁻])','pH = pKa × [A⁻]/[HA]','pH = −log(Ka [HA])']},'近似的に [A⁻] ≈ Cb、[HA] ≈ Ca とおく。'],
+[2,'【問題2】0.10 M 酢酸と 0.10 M 酢酸ナトリウムを含む緩衝液の pH は？（pKa 4.76）',{c:['4.76','2.88','7.00','8.88']},'log(0.10/0.10) = 0'],
+[2,'【問題3】問題2の緩衝液に NaOH を 1.0 × 10⁻² M 加えたときの pH は？',{c:['4.85','4.76','4.67','12.00']},'酢酸が 0.09、酢酸イオンが 0.11 になる。4.76 + log(0.11/0.09) = 4.85'],
+[2,'問題3で NaOH を加えると、酢酸と酢酸イオンの濃度はどう変わる？',{c:['酢酸 0.09 M、酢酸イオン 0.11 M','酢酸 0.11 M、酢酸イオン 0.09 M','どちらも 0.10 M のまま','酢酸 0.10 M、酢酸イオン 0.11 M']},'CH₃COOH + OH⁻ → CH₃COO⁻ + H₂O'],
+[2,'ヘンダーソン・ハッセルバルヒ式で Ca・Cb を使えるのはどんな条件のとき？',{c:['Ca・Cb が [H₃O⁺]・[OH⁻] よりずっと大きい','Ca・Cb が [H₃O⁺]・[OH⁻] よりずっと小さい','Ca と Cb がぴったり等しいときだけ','強酸と強塩基を混ぜたときだけ']},'厳密には平衡濃度 [A⁻]、[HA] を使う式。'],
+[2,'リン酸溶液の pH が 7.20 のとき、多く存在する2つの化学種は？',{c:['H₂PO₄⁻ と HPO₄²⁻','H₃PO₄ と H₂PO₄⁻','HPO₄²⁻ と PO₄³⁻','H₃PO₄ と PO₄³⁻']},'pKa₂ = 7.20 のとき共役酸塩基対の濃度が等しい。'],
+[2,'緩衝作用がいちばんよく効く pH は？',{c:['pH = pKa のあたり','pH = 7','pH = pKa + 3','pH = 14 − pKa']},'共役酸と共役塩基の濃度が等しいとき。'],
+[3,'酢酸を NaOH で滴定したときの当量点の pH は？',{c:['7 より大きい（塩基性）','ちょうど 7','7 より小さい（酸性）','滴定量によって毎回ちがう']},'当量点には CH₃COONa があり、加水分解で塩基性。'],
+[3,'NH₃ を HCl で滴定したときの当量点の pH は？',{c:['7 より小さい（約 5）','ちょうど 7','7 より大きい（約 9）','14']},'当量点には NH₄Cl があり酸性。'],
+[3,'酸と塩基の濃度を下げると、滴定曲線の pH ジャンプは？',{c:['小さくなる','大きくなる','変わらない','なくなって逆向きになる']},'酢酸の当量点の pH も 8.73 → 8.23 → 7.73（0.1 → 0.01 → 0.001 M）と下がる。'],
+[3,'Ka がとても小さい（例：10⁻⁹）弱酸を NaOH で滴定すると？',{c:['pH ジャンプが小さく、終点が分かりにくい','pH ジャンプがとても大きく、分かりやすい','当量点の pH がちょうど 7 になる','指示薬なしでも色が変わって分かる']},''],
+[3,'弱酸を強塩基で滴定するとき、半当量点の pH は？',{c:['≈ pKa','≈ 7','≈ 14 − pKa','≈ 2pKa']},'半当量点では [HA] = [A⁻] なので、ヘンダーソン・ハッセルバルヒ式から pH = pKa。'],
+[3,'リン酸の第1当量点の pH は？（pKa₁ 2.15、pKa₂ 7.20）',{c:['約 4.7','約 2.2','約 7.2','約 9.8']},'(pKa₁ + pKa₂)/2 = 4.675'],
+[3,'リン酸の第2当量点の pH は？（pKa₂ 7.20、pKa₃ 12.35）',{c:['約 9.8','約 7.2','約 12.4','約 4.7']},'(pKa₂ + pKa₃)/2 = 9.775'],
+[4,'指示薬 HInd（赤）⇄ Ind⁻（青）で、赤色に見えるのは？',{c:['pH < pKa − 1','pH > pKa + 1','pH = pKa','pH < pKa − 3']},'片方が10倍以上あるとその色だけ見える。'],
+[4,'指示薬の色がはっきり変わるには、pH がどれくらい変化する必要がある？',{c:['pKa を中心に 2 以上','pKa を中心に 0.2 以上','pKa を中心に 10 以上','どれだけでもよい']},'pKa − 1 から pKa + 1 まで。'],
+[4,'酢酸を NaOH で滴定するときに適した指示薬は？',{c:['フェノールフタレイン','メチルレッド','メチルオレンジ','ブロモフェノールブルー']},'当量点が塩基性（約 9）なので、変色域 8〜10 のフェノールフタレイン。'],
+[4,'NH₃ を HCl で滴定するときに適した指示薬は？',{c:['メチルレッド','フェノールフタレイン','チモールフタレイン','アリザリンイエロー R']},'当量点が酸性（約 5）なので、変色域 4.4〜6.2 のメチルレッド。'],
+[4,'フェノールフタレインの色の変化は？（酸性 → 塩基性）',{c:['無色 → 赤紫','赤 → 黄','黄 → 青','赤紫 → 無色']},'変色域はおよそ pH 8〜10。'],
+[4,'固体の NaOH の表面が Na₂CO₃ に変わってしまう原因は？',{c:['空気中の CO₂','空気中の O₂','空気中の N₂','光']},''],
+[4,'NaOH と Na₂CO₃ の混合物を HCl で滴定するとき、フェノールフタレインの終点までに反応するのは？',{c:['NaOH 全部と、Na₂CO₃ が HCO₃⁻ になるまで','NaOH 全部だけ（Na₂CO₃ はまだ反応しない）','Na₂CO₃ 全部だけ（NaOH はあとで反応する）','NaOH 全部と、Na₂CO₃ が CO₂ になるまで']},'n(HCl) = n(NaOH) + n(Na₂CO₃)'],
+[4,'NaOH と Na₂CO₃ の混合物を 0.10 M HCl で滴定した。フェノールフタレインの終点まで 20.0 mL、そこからメチルオレンジの終点までさらに 5.0 mL。NaOH は何 mmol？',{c:['1.5 mmol','2.0 mmol','2.5 mmol','0.5 mmol']},'Na₂CO₃ = 0.10 × 5.0 = 0.50 mmol。NaOH = 0.10 × 20.0 − 0.50 = 1.5 mmol。'],
+[4,'Na₂CO₃ の第2当量点を知るのに使う指示薬は？',{c:['メチルオレンジ','フェノールフタレイン','チモールブルー（塩基側）','アリザリンイエロー R']},'第2当量点は酸性側（CO₂ が出る）。']
+]});
+</script>
+<script>
+// ---------- データの整形 ----------
+const EXAM=new Date(2026,10,10); // 試験日 11/10
+const PAL=['--t-base','--t-graph','--t-gc','--t-det','--t-lc','--t-ion','--t-tlc','--t-calc'];
+const col=i=>`var(${PAL[i%PAL.length]})`;
+LECS.sort((a,b)=>a.id.localeCompare(b.id));
+const LEC={};LECS.forEach(l=>LEC[l.id]=l);
+const D=[];
+LECS.forEach(l=>l.q.forEach((r,i)=>D.push({id:l.id+'-'+i,lec:l.id,ch:r[0],q:r[1],c:r[2].c,a:r[2].a,e:r[3]||''})));
+
+// ---------- 状態 ----------
+const KEY='bunseki1-v1',UIKEY='bunseki1-ui';
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(mem))}catch(e){}};
+const saveUI=()=>{try{localStorage.setItem(UIKEY,JSON.stringify(ui))}catch(e){}};
+let mem={};try{mem=JSON.parse(localStorage.getItem(KEY)||'null')||{}}catch(e){}
+let ui={mode:'learn',lec:LECS[0].id,ch:0};
+try{const s=localStorage.getItem(UIKEY);if(s)Object.assign(ui,JSON.parse(s))}catch(e){}
+// 旧版（クロマト特訓・10/16 だけ）の記録を引き継ぐ
+try{
+  if(!localStorage.getItem(KEY)){const old=JSON.parse(localStorage.getItem('chroma1016-v1')||'{}');for(const k in old)mem['1016-'+k]=old[k];if(Object.keys(old).length)save()}
+  if(!localStorage.getItem(UIKEY)){const o=JSON.parse(localStorage.getItem('chroma1016-ui')||'null');if(o){ui.mode=o.mode||'learn';ui.lec='1016';ui.ch=o.ch||0}}
+}catch(e){}
+if(!LEC[ui.lec])ui.lec=LECS[0].id;
+if(!(ui.ch>=0&&ui.ch<LEC[ui.lec].ch.length))ui.ch=0;
+
+// ドリルの状態：scope は 'all'（全範囲）か回のid、topic は 'all' か章番号、filter は 'all' / 'weak'（苦手だけ） / 'new'（未回答だけ）
+let scope=ui.lec,topic='all',filter='all',deck=[],pos=0,log=[],cur=null,started=false;
+const $=s=>document.getElementById(s);
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const esc=s=>s.replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+const chName=(lec,i)=>LEC[lec].ch[i].t;
+const tagLabel=d=>`${LEC[d.lec].date}・第${d.ch+1}章　${chName(d.lec,d.ch)}`;
+const lecQs=id=>D.filter(d=>d.lec===id);
+
+function header(){
+  const today=new Date();today.setHours(0,0,0,0);
+  const days=Math.round((EXAM-today)/864e5);
+  $('sub').innerHTML=days>0?`試験 11/10（火）まで あと <b>${days}</b> 日`:days===0?'今日は試験日。落ち着いていこう':'試験おつかれさま';
+}
+
+// ---------- 講義回の切り替え ----------
+function renderLecs(){
+  const drill=ui.mode==='drill';
+  const items=(drill?[{id:'all',date:'全範囲',short:`${LECS.length}回分`}]:[]).concat(LECS);
+  $('lecs').innerHTML=items.map(l=>{
+    const qs=l.id==='all'?D:lecQs(l.id),done=qs.filter(d=>mem[d.id]===1).length;
+    const on=drill?scope===l.id:ui.lec===l.id;
+    return `<button class="chip" data-l="${l.id}" aria-pressed="${on}"><span class="d">${l.date}</span><span>${l.short}</span><span class="bar2" title="${done}/${qs.length} 問正解済み"><span style="width:${qs.length?Math.round(done/qs.length*100):0}%"></span></span></button>`;
+  }).join('');
+  $('lecs').querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>{
+    const id=b.dataset.l;
+    if(ui.mode==='drill'){scope=id;topic='all';if(id!=='all'){ui.lec=id;ui.ch=0;saveUI()}renderLecs();chips();start()}
+    else{ui.lec=id;ui.ch=0;saveUI();renderLecs();renderLearn();window.scrollTo({top:0})}
+  });
+  const on=$('lecs').querySelector('[aria-pressed="true"]');if(on)on.scrollIntoView({block:'nearest',inline:'center'});
+}
+
+// ---------- モード ----------
+function setMode(m){
+  ui.mode=m;saveUI();
+  $('tab-learn').setAttribute('aria-selected',m==='learn');$('tab-drill').setAttribute('aria-selected',m==='drill');
+  $('learn').hidden=m!=='learn';$('drill').hidden=m!=='drill';
+  if(m==='learn'){renderLecs();renderLearn()}
+  else{
+    // 読んでいた章と違う範囲を解きかけていなければ、読んでいた章の問題から始める
+    if(!started||(!log.length&&(scope!==ui.lec||topic!==ui.ch))){scope=ui.lec;topic=ui.ch;filter='all';renderLecs();chips();start()}
+    else{renderLecs();chips();render()}
+  }
+  window.scrollTo({top:0});
+}
+$('tab-learn').onclick=()=>setMode('learn');
+$('tab-drill').onclick=()=>setMode('drill');
+
+// ---------- まず読む ----------
+function renderLearn(){
+  const lec=LEC[ui.lec],c=lec.ch[ui.ch],cc=col(ui.ch),n=D.filter(d=>d.lec===lec.id&&d.ch===ui.ch).length;
+  $('toc').innerHTML=lec.ch.map((x,i)=>`<button class="chip" style="--c:${col(i)}" data-c="${i}" aria-pressed="${i===ui.ch}"><i></i><span class="n">${i+1}</span>${x.t}</button>`).join('');
+  $('toc').querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>{ui.ch=+b.dataset.c;saveUI();renderLearn();window.scrollTo({top:0})});
+  const on=$('toc').querySelector('[aria-pressed="true"]');if(on)on.scrollIntoView({block:'nearest',inline:'center'});
+  $('lesson').innerHTML=`<article class="card lesson" style="--c:${cc}"><p class="meta"><span class="tag" style="--c:${cc}">${lec.date} ${lec.title}・第${ui.ch+1}章</span><span class="count">${ui.ch+1} / ${lec.ch.length}</span></p>${c.html}<button class="dunno" id="ldunno" data-ai ${sampleFn?'':'hidden'}>この章、分からない</button><div class="help" id="lhelp" hidden><label for="lq">どこが分からない？（空欄のままでもOK）</label><textarea id="lq" placeholder="例：この式の記号が何を表しているのかピンとこない"></textarea><button class="ask" id="lask">やさしく説明して</button><div class="ai" id="lout" hidden></div></div><button class="go" id="goDrill">この章の問題を解く（${n}問）</button></article>`;
+  $('ldunno').onclick=()=>{$('ldunno').hidden=true;$('lhelp').hidden=false;$('lq').focus()};
+  $('lask').onclick=()=>{
+    const tmp=document.createElement('div');tmp.innerHTML=c.html;
+    const text=tmp.textContent.replace(/\s+\n/g,'\n').slice(0,5000),q=$('lq').value.trim();
+    ask(`${PERSONA}以下の入門テキスト（${lec.title}）を読んでも分からなかったそうです。
+
+---
+${text}
+---
+
+分からないところ：${q||'（具体的には書かれていない。章全体がピンときていない）'}
+
+テキストの内容から外れずに、身近なたとえを使って、やさしい日本語で300〜450字で説明してください。式が出てくる場合は、記号がそれぞれ何を表すかを言葉で説明してください。見出しや**などのマークダウン記号は使わないでください。`,$('lout'),$('lask'));
+  };
+  $('goDrill').onclick=()=>{scope=lec.id;topic=ui.ch;filter='all';started=true;deck=[];setModeDrillFresh()};
+  $('score').innerHTML=`<b>${ui.ch+1}</b> / ${lec.ch.length}<br>章`;
+  const last=ui.ch===lec.ch.length-1,li=LECS.indexOf(lec),nextLec=LECS[li+1];
+  $('bar').innerHTML=(ui.ch>0?`<button class="ghost" id="prev">← 前の章</button>`:'')+
+    (last&&nextLec?`<button class="ghost" id="nextlec">次の回へ →</button>`:'')+
+    `<button class="next" id="nextch">${last?'この回のドリルへ':'次の章へ'}</button>`;
+  if(ui.ch>0)$('prev').onclick=()=>{ui.ch--;saveUI();renderLearn();window.scrollTo({top:0})};
+  if(last&&nextLec)$('nextlec').onclick=()=>{ui.lec=nextLec.id;ui.ch=0;saveUI();renderLecs();renderLearn();window.scrollTo({top:0})};
+  $('nextch').onclick=()=>{if(last){scope=lec.id;topic='all';filter='all';setModeDrillFresh()}else{ui.ch++;saveUI();renderLearn();window.scrollTo({top:0})}};
+}
+function setModeDrillFresh(){started=true;log=[];ui.mode='drill';saveUI();
+  $('tab-learn').setAttribute('aria-selected','false');$('tab-drill').setAttribute('aria-selected','true');
+  $('learn').hidden=true;$('drill').hidden=false;renderLecs();chips();start();window.scrollTo({top:0})}
+
+// ---------- 「分からない」→ Claude にやさしく説明してもらう ----------
+let sampleFn=null;
+(async()=>{try{if(window.claude&&typeof claude.use==='function')sampleFn=await claude.use('sample')}catch(e){}
+  document.querySelectorAll('[data-ai]').forEach(b=>b.hidden=!sampleFn)})();
+const HIDE=new Set(['not_granted','sampling_disabled','not_declared','capability_disabled','capability_removed']);
+const aiErr=c=>({not_granted:'Claude への質問が許可されなかったので、この機能は使えません。',sampling_disabled:'このアカウントでは Claude に質問できません。',rate_limited:'質問が続いたので、少し時間をおいてもう一度押してね。',session_expired:'サインインし直してからもう一度押してね。',refused:'この聞き方では答えられなかった。書き方を変えてみて。'}[c]||'うまく受け取れなかった。もう一度押してみて。');
+const clean=s=>s.replace(/\*\*/g,'').replace(/^#+\s*/gm,'');
+const PERSONA='あなたは分析化学の家庭教師です。相手は大学2年生で、授業の内容をまだよく理解できていない初心者です。';
+async function ask(prompt,out,btn){
+  if(!sampleFn)return;
+  const again=btn.dataset.again==='1';
+  btn.disabled=true;out.hidden=false;out.className='ai wait';out.textContent='考え中…';
+  try{
+    const {text,truncated}=await sampleFn(again?prompt+'\n\n前回とは違うたとえを使ってください。':prompt,{modelTier:'quick',cache:again?false:true,onText:({text})=>{out.className='ai';out.textContent=clean(text)}});
+    out.className='ai';out.textContent=clean(text)+(truncated?'\n（途中で切れました）':'');
+    btn.textContent='別の言い方で説明して';btn.dataset.again='1';
+  }catch(e){
+    out.className='ai wait';out.textContent=(e.text?clean(e.text)+'\n\n':'')+(e.code==='cancelled'?'':aiErr(e.code));
+    if(HIDE.has(e.code)){sampleFn=null;btn.hidden=true}
+  }finally{btn.disabled=false}
+}
+function helpHTML(d){
+  return `<div class="help"><div class="row"><button id="aiBtn" data-ai ${sampleFn?'':'hidden'}>もっとやさしく説明して</button><button id="toCh">${LEC[d.lec].date} 第${d.ch+1}章「${chName(d.lec,d.ch)}」を読む</button></div><div class="ai" id="aiOut" hidden></div></div>`;
+}
+function wireHelp(d,picked){
+  $('toCh').onclick=()=>{if(cur&&cur.done)pos++;ui.lec=d.lec;ui.ch=d.ch;saveUI();setMode('learn')};
+  $('aiBtn').onclick=()=>ask(`${PERSONA}次の確認問題（${LEC[d.lec].title}）が分からなかったそうです。
+
+問題：${d.q}
+正解：${d.c?d.c[0]:d.a}
+${d.e?'教科書的な解説：'+d.e+'\n':''}${picked?'学生が選んだ答え：'+picked:'学生は答えずに「分からない」を押しました。'}
+
+なぜこの答えになるのかを、身近なたとえを1つ使って、やさしい日本語で200〜300字で説明してください。${picked?'選んだ答えがなぜ違うのかにも一言ふれてください。':''}最後に「ひとことで：」で始まる1行のまとめをつけてください。見出しや**などのマークダウン記号は使わないでください。`,$('aiOut'),$('aiBtn'));
+}
+
+// ---------- ドリル ----------
+const inScope=d=>(scope==='all'||d.lec===scope)&&(scope==='all'||topic==='all'||d.ch===topic);
+function pool(){return D.filter(d=>inScope(d)&&(filter==='all'||(filter==='weak'?mem[d.id]===0:mem[d.id]===undefined)))}
+function start(list){started=true;deck=shuffle(list||pool());pos=0;log=[];if(ui.mode==='drill')render()}
+
+function filterCounts(){const s=D.filter(inScope);return{weak:s.filter(d=>mem[d.id]===0).length,fresh:s.filter(d=>mem[d.id]===undefined).length}}
+function chips(){
+  const n=filterCounts();
+  const chs=scope==='all'?'':[`<button class="chip" data-t="all" aria-pressed="${topic==='all'}">全部</button>`].concat(
+    LEC[scope].ch.map((x,i)=>`<button class="chip" style="--c:${col(i)}" data-t="${i}" aria-pressed="${topic===i}"><i></i><span class="n">${i+1}</span>${x.t}</button>`)).join('');
+  $('chips').innerHTML=chs+
+    `<button class="chip weak" data-f="weak" aria-pressed="${filter==='weak'}">苦手だけ <span class="n" id="nWeak">${n.weak}</span></button>`+
+    `<button class="chip" data-f="new" aria-pressed="${filter==='new'}">未回答だけ <span class="n" id="nNew">${n.fresh}</span></button>`;
+  $('chips').querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{topic=b.dataset.t==='all'?'all':+b.dataset.t;if(topic!=='all'){ui.ch=topic;saveUI()}chips();start()});
+  $('chips').querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{filter=filter===b.dataset.f?'all':b.dataset.f;chips();start()});
+  const on=$('chips').querySelector('[data-t][aria-pressed="true"]');if(on&&!$('drill').hidden)on.scrollIntoView({block:'nearest',inline:'center'});
+}
+// 解答のたびに数字だけ更新する（チップを作り直すとスクロール位置が動くため）
+function updateCounts(){const n=filterCounts();if($('nWeak'))$('nWeak').textContent=n.weak;if($('nNew'))$('nNew').textContent=n.fresh}
+
+function drawChrom(){
+  const n=Math.max(deck.length,1),W=300,base=43,s=Math.max(W/n*0.22,1.4);
+  const peaks=log.map(r=>({x:(r.pos+.5)/n*W,h:r.ok?36:13,s,ok:r.ok}));
+  const bad=peaks.filter(p=>!p.ok).map(p=>`<circle cx="${p.x}" cy="${base-15}" r="2.2" fill="var(--bad)"/>`).join('');
+  $('chrom').innerHTML=`<path d="${gauss(peaks,W,base,40)}" fill="none" stroke="var(--accent)" stroke-width="1.4" vector-effect="non-scaling-stroke"/>${bad}`;
+}
+function score(){
+  if(ui.mode!=='drill')return;
+  const ok=log.filter(r=>r.ok).length;
+  $('score').innerHTML=`<b>${ok}</b> / ${log.length} 正解<br>残り ${Math.max(deck.length-pos,0)} 問`;
+}
+function record(ok){mem[cur.id]=ok?1:0;save();log.push({id:cur.id,pos,ok});cur.done=true;drawChrom();score();bar();updateCounts()}
+
+function render(){
+  drawChrom();score();
+  if(!deck.length){
+    const msg=filter==='weak'?['この範囲の苦手問題はありません。','「苦手だけ」を外すと全問から出題します。']:filter==='new'?['この範囲はぜんぶ解きました。','「未回答だけ」を外すと全問から出題します。']:['この範囲にはまだ問題がありません。',''];
+    $('main').innerHTML=`<section class="card"><p class="q">${msg[0]}</p><p class="exp">${msg[1]}</p></section>`;$('bar').innerHTML='';return}
+  if(pos>=deck.length)return summary();
+  const d=deck[pos];cur={id:d.id,done:false};const cc=col(d.ch);
+  const body=d.c
+    ?`<div class="opts">${shuffle(d.c).map((o,i)=>`<button class="opt" data-ok="${o===d.c[0]?1:0}" data-v="${esc(o)}"><span class="k">${'ABCD'[i]}</span><span>${esc(o)}</span></button>`).join('')}</div><button class="dunno" id="dk">分からない</button><div id="after"></div>`
+    :`<div class="revrow" id="revrow"><button class="dunno" id="dk">分からない</button><button class="reveal" id="rev">答えを見る</button></div><div id="after"></div>`;
+  $('main').innerHTML=`<section class="card"><div class="meta"><span class="tag" style="--c:${cc}">${tagLabel(d)}</span><span class="count">${pos+1} / ${deck.length}</span></div><p class="q">${esc(d.q)}</p>${body}</section>`;
+  const exp=d.e?`<div class="exp">${esc(d.e)}</div>`:'';
+  if(d.c){
+    const finish=b=>{
+      if(cur.done)return;const ok=!!b&&b.dataset.ok==='1';
+      $('main').querySelectorAll('.opt').forEach(o=>{o.disabled=true;if(o.dataset.ok==='1')o.classList.add('right');else if(o!==b)o.classList.add('dim')});
+      if(b&&!ok)b.classList.add('wrong');
+      $('dk').remove();
+      $('after').outerHTML=exp+(ok?'':helpHTML(d));
+      if(!ok)wireHelp(d,b?b.dataset.v:null);
+      record(ok);
+    };
+    $('main').querySelectorAll('.opt').forEach(b=>b.onclick=()=>finish(b));
+    $('dk').onclick=()=>finish(null);
+  }else{
+    const show=extra=>{$('revrow').remove();$('after').outerHTML=`<div class="ans">${esc(d.a)}</div>${exp}${extra}`};
+    $('rev').onclick=()=>{
+      show(`<div class="self" id="self"><button class="n" id="sn">まだ曖昧</button><button class="y" id="sy">言えた</button></div><div id="after"></div>`);
+      $('sy').onclick=()=>{$('self').remove();record(true)};
+      $('sn').onclick=()=>{$('self').remove();$('after').outerHTML=helpHTML(d);wireHelp(d,null);record(false)};
+    };
+    $('dk').onclick=()=>{show(helpHTML(d));wireHelp(d,null);record(false)};
+  }
+  bar();window.scrollTo({top:0});
+}
+function bar(){
+  if(ui.mode!=='drill'||pos>=deck.length)return;
+  const last=pos===deck.length-1;
+  $('bar').innerHTML=cur.done?`<button class="next" id="nx">${last?'結果を見る':'次へ'}</button>`:`<button class="next skip" id="nx">スキップ</button>`;
+  $('nx').onclick=()=>{pos++;render()};
+}
+function summary(){
+  const ok=log.filter(r=>r.ok).length,pct=log.length?Math.round(ok/log.length*100):0;
+  // このセットで解いた問題だけを、全範囲なら回ごと・回の中なら章ごとに集計する
+  const byId={};D.forEach(d=>byId[d.id]=d);
+  const by={};log.forEach(r=>{const d=byId[r.id],k=scope==='all'?d.lec:d.ch;by[k]=by[k]||[0,0];by[k][1]++;if(r.ok)by[k][0]++});
+  const label=k=>scope==='all'?`<span class="tag" style="--c:var(--fg)">${LEC[k].date} ${LEC[k].short}</span>`:`<span class="tag" style="--c:${col(+k)}">第${+k+1}章　${chName(scope,+k)}</span>`;
+  const keys=Object.keys(by).sort((a,b)=>scope==='all'?a.localeCompare(b):a-b);
+  const wrong=log.filter(r=>!r.ok).map(r=>byId[r.id]);
+  $('main').innerHTML=`<section class="card sum"><p class="meta"><span>このセットの結果</span></p><h2>${pct}%</h2><p>${log.length} 問中 ${ok} 問正解${deck.length>log.length?`（スキップ ${deck.length-log.length}）`:''}</p>
+  <div class="rows">${keys.map(k=>`<div>${label(k)}<span>${by[k][0]} / ${by[k][1]}</span></div>`).join('')}</div></section>`;
+  $('bar').innerHTML=(wrong.length?`<button class="ghost" id="rw">間違えた ${wrong.length} 問</button>`:'')+`<button class="next" id="ag">もう一周</button>`;
+  $('ag').onclick=()=>start();
+  if(wrong.length)$('rw').onclick=()=>start(wrong);
+  renderLecs();window.scrollTo({top:0});
+}
+
+header();
+setMode(ui.mode==='drill'?'drill':'learn');
+</script>
+
+</body>
+</html>
